@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* DEFINIZIONE DELLE VARIABILI USATE DAL TUO TEMA */
+@layer base {
+  :root {
+    --background: 0 0% 4%;        /* #0a0a0a */
+    --foreground: 40 33% 98%;     /* #fdfbf7 */
+    --border: 0 0% 15%;           /* #262626 */
+
+    --primary: 24 95% 53%;        /* #f97316 */
+    --secondary: 38 92% 50%;      /* #fbbf24 */
+
+    --muted: 0 0% 25%;            /* #404040 */
+    --muted-light: 0 0% 83%;      /* #d4d4d4 */
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+
+/* STILI DI STAMPA */
+@media print {
+  body {
+    background-color: white !important;
+    color: black !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .comanda-print-container {
+    width: 100%;
+    max-width: 80mm;
+    margin: 0 auto;
+    font-family: monospace;
+    font-size: 12pt;
+    color: #000;
+  }
+  * {
+    color: #000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    background: transparent !important;
+  }
+  .print-copy {
+    display: block !important;
+  }
+  .print-copy-2 {
+    page-break-before: always;
+    break-before: page;
+  }
+}
+
+.print-copy-2 {
+  display: none;
+}
