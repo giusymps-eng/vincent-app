@@ -128,6 +128,14 @@ export default function NewOrder() {
   };
 
   const addLine = (item: MenuItem, group: 'pizzas' | 'panini' | 'contorni' | 'bevande') => {
+    if (group === 'pizzas' && order.scheduledTime) {
+      const currentPizzas = order.pizzas.reduce((a, l) => a + l.quantity, 0);
+      const { remaining } = canFit(order.scheduledTime, 0, editId);
+      if (remaining < currentPizzas + 1) {
+        alert("LIMITE PIZZE RAGGIUNTO");
+        return;
+      }
+    }
     const newLine: OrderLine = {
       id: Math.random().toString(36).slice(2),
       itemId: item.id,
@@ -140,6 +148,21 @@ export default function NewOrder() {
   };
 
   const updateLine = (group: 'pizzas' | 'panini' | 'contorni' | 'bevande', id: string, changes: Partial<OrderLine>) => {
+    if (group === 'pizzas' && 'quantity' in changes && order.scheduledTime) {
+      const line = order[group].find(l => l.id === id);
+      if (line) {
+        const newQuantity = changes.quantity!;
+        const delta = newQuantity - line.quantity;
+        if (delta > 0) {
+          const currentPizzas = order.pizzas.reduce((a, l) => a + l.quantity, 0);
+          const { remaining } = canFit(order.scheduledTime, 0, editId);
+          if (remaining < currentPizzas + delta) {
+            alert("LIMITE PIZZE RAGGIUNTO");
+            return;
+          }
+        }
+      }
+    }
     setOrder(prev => ({
       ...prev,
       [group]: prev[group].map(line => line.id === id ? { ...line, ...changes } : line)

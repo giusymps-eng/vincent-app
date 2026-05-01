@@ -155,13 +155,13 @@ export default function Dashboard() {
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <Truck className="h-5 w-5 text-primary" />
-            Capacità Domicilio (Pizze)
+            Capacità Totale (Pizze)
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
             {deliverySlots.map((slot) => {
-              const perc = slot.pizzaCount / 9;
+              const perc = slot.pizzaCount / 10;
               let color = "bg-muted text-muted-foreground";
               if (slot.pizzaCount > 0) {
                 if (perc < 0.5)
@@ -181,7 +181,7 @@ export default function Dashboard() {
 
 
                   <span className="text-sm font-bold">{slot.time}</span>
-                  <span className="text-xs">{slot.pizzaCount}/9</span>
+                  <span className="text-xs">{slot.pizzaCount}/10</span>
                 </div>
               );
             })}

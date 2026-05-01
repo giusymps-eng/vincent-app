@@ -72,6 +72,6 @@ export interface DeliverySlot {
   orderIds: string[];
 }
 
-export const MAX_PIZZAS_PER_SLOT = 9;
+export const MAX_PIZZAS_PER_SLOT = 10;
 export const DELIVERY_START_HOUR = 19;
 export const DELIVERY_END_HOUR = 23;

@@ -165,14 +165,14 @@ export interface SlotInfo {
 export function getDeliverySlotsInfo(orders: Order[]): SlotInfo[] {
   const today = todayKey();
   const slots = generateDeliverySlots();
-  const todayDelivery = orders.filter(
+  const todayOrders = orders.filter(
     (o) =>
-      o.type === "domicilio" &&
+      (o.type === "domicilio" || o.type === "asporto") &&
       o.createdAt.slice(0, 10) === today &&
       o.status !== "annullato",
   );
   return slots.map((time) => {
-    const matching = todayDelivery.filter((o) => o.scheduledTime === time);
+    const matching = todayOrders.filter((o) => o.scheduledTime === time);
     const pizzaCount = matching.reduce(
       (acc, o) => acc + o.pizzas.reduce((a, p) => a + p.quantity, 0),
       0,
@@ -196,7 +196,7 @@ export function canFitInSlot(
   const today = todayKey();
   const matching = orders.filter(
     (o) =>
-      o.type === "domicilio" &&
+      (o.type === "domicilio" || o.type === "asporto") &&
       o.createdAt.slice(0, 10) === today &&
       o.status !== "annullato" &&
       o.scheduledTime === time &&
