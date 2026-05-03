@@ -71,7 +71,7 @@ export const PANINI: MenuItem[] = [
     id: "panino-personalizzato",
     name: "Panino personalizzato",
     description: "Scrivi tu come lo vuoi",
-    price: 0,
+    price: 1.0,
     category: "panini",
   },
 
