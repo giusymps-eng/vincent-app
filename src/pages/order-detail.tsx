@@ -27,11 +27,13 @@ import {
 import { useToast } from "@/hooks/use-toast";
 
 export default function OrderDetail() {
-  const { id } = useParams();
+  const params = useParams<{ id: string }>();
+  const id = params.id;
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const orders = useOrders();
   const [order, setOrder] = useState<Order | null>(null);
+  const [isPrinting, setIsPrinting] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -62,22 +64,34 @@ export default function OrderDetail() {
   };
 
   const handlePrint = async () => {
+    setIsPrinting(true);
     try {
-      // Invia all'stampante via RawBT
-      await sendOrderToPrinter(order);
+      // Tenta di inviare alla stampante via RawBT
+      try {
+        await sendOrderToPrinter(order);
+        toast({ title: "Ordine inviato alla stampante" });
+      } catch (printerError) {
+        console.warn("RawBT printer not available, proceeding with local print:", printerError);
+        toast({ 
+          title: "Stampante Bluetooth non disponibile",
+          description: "Procedendo con stampa locale",
+          variant: "default",
+        });
+      }
       
       if (!isPrinted) {
         markOrderPrinted(order.id);
       }
       
-      toast({ title: "Ordine inviato alla stampante" });
       setTimeout(() => window.print(), 50);
     } catch (error) {
       toast({
         title: "Errore nella stampa",
-        description: error instanceof Error ? error.message : "Non è stato possibile inviare l'ordine alla stampante",
+        description: error instanceof Error ? error.message : "Si è verificato un errore",
         variant: "destructive",
       });
+    } finally {
+      setIsPrinting(false);
     }
   };
 
@@ -123,8 +137,8 @@ export default function OrderDetail() {
           </Button>
         )}
 
-        <Button onClick={handlePrint} className="font-bold">
-          <Printer className="mr-2 h-4 w-4" /> {isPrinted ? "Ristampa" : "Stampa"}
+        <Button onClick={handlePrint} className="font-bold" disabled={isPrinting}>
+          <Printer className="mr-2 h-4 w-4" /> {isPrinting ? "Stampa in corso..." : isPrinted ? "Ristampa" : "Stampa"}
         </Button>
 
         {!isPrinted && (
