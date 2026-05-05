@@ -126,22 +126,7 @@ export default function OrderDetail() {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3 mt-6">
-        {!isPrinted && (
-          <Button variant="outline" onClick={handleEdit}>
-            <Edit className="mr-2 h-4 w-4" /> Modifica
-          </Button>
-        )}
 
-        <Button onClick={handlePrint} className="font-bold" disabled={isPrinting}>
-          <Printer className="mr-2 h-4 w-4" />
-          {isPrinting ? "Invio..." : isPrinted ? "Ristampa" : "Stampa"}
-        </Button>
-
-        <Button variant="destructive" onClick={() => setShowCancel(true)}>
-          <Ban className="mr-2 h-4 w-4" /> Annulla
-        </Button>
-      </div>
 
       <AlertDialog open={showCancel} onOpenChange={setShowCancel}>
         <AlertDialogContent>
