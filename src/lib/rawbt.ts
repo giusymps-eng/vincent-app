@@ -1,48 +1,71 @@
 import type { Order } from "@/types";
 
-const RAWBT_API = process.env.VITE_RAWBT_API || "http://localhost:3000/api";
-const PRINTER_NAME = "lan_printer";
-const PRINTER_DRIVER = "esc_general";
+export async function sendOrderToPrinter(order: Order) {
+  return new Promise((resolve, reject) => {
+    try {
+      const ws = new WebSocket("ws://192.168.1.55:40213");
 
-export async function sendOrderToPrinter(order: Order): Promise<void> {
-  try {
-    const response = await fetch(`${RAWBT_API}/print`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        printer: PRINTER_NAME,
-        driver: PRINTER_DRIVER,
-        order: {
-          id: order.id,
-          progressiveNumber: order.progressiveNumber,
-          type: order.type,
-          tableNumber: order.tableNumber,
-          coperti: order.coperti,
-          scheduledTime: order.scheduledTime,
-          customerName: order.customerName,
-          customerPhone: order.customerPhone,
-          customerAddress: order.customerAddress,
-          pizzas: order.pizzas,
-          panini: order.panini,
-          contorni: order.contorni,
-          bevande: order.bevande,
-          notes: order.notes,
-          cutPizzas: order.cutPizzas,
-          deliveryFee: order.deliveryFee,
-          coperto: order.coperto,
-          total: order.total,
-        },
-      }),
-    });
+      ws.onopen = () => {
+        const text = generateReceiptText(order);
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.message || `Errore stampa: ${response.statusText}`);
+        const payload = {
+          type: "text",
+          data: text
+        };
+
+        ws.send(JSON.stringify(payload));
+        ws.close();
+        resolve(true);
+      };
+
+      ws.onerror = (err) => {
+        console.error("Errore WebSocket:", err);
+        reject(err);
+      };
+    } catch (error) {
+      reject(error);
     }
-  } catch (error) {
-    console.error("RawBT Print Error:", error);
-    throw error instanceof Error ? error : new Error("Errore di comunicazione con la stampante");
+  });
+}
+
+function generateReceiptText(order: Order) {
+  let text = "";
+
+  text += `COMANDA #${order.progressiveNumber}\n`;
+  text += `Tipo: ${order.type}\n`;
+
+  if (order.type === "tavolo") {
+    text += order.tableNumber
+      ? `Tavolo: ${order.tableNumber}\n`
+      : `Coperti: ${order.coperti || 1}\n`;
+  } else {
+    text += `Orario: ${order.scheduledTime}\n`;
   }
+
+  text += "-----------------------------\n";
+
+  const addLines = (title: string, items: any[]) => {
+    if (items.length === 0) return;
+    text += `\n${title}\n`;
+    items.forEach((l) => {
+      text += `${l.quantity} × ${l.name}\n`;
+      if (l.note) text += `  Note: ${l.note}\n`;
+    });
+  };
+
+  addLines("PIZZE", order.pizzas);
+  addLines("PANINI", order.panini);
+  addLines("STUZZICHERIE", order.contorni);
+  addLines("BEVANDE", order.bevande);
+
+  if (order.notes) {
+    text += `\nNOTE AGGIUNTIVE:\n${order.notes}\n`;
+  }
+
+  text += "\n-----------------------------\n";
+  text += `TOTALE: €${order.total.toFixed(2)}\n`;
+
+  text += "\n\n\n";
+
+  return text;
 }
