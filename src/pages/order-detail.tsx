@@ -1,4 +1,4 @@
-import { useParams, Link, useLocation } from "wouter";
+﻿import { useParams, useLocation } from "wouter";
 import { useEffect, useState } from "react";
 import { Printer, ChevronLeft, Edit, Ban, Lock } from "lucide-react";
 import { useOrders, updateOrderStatus, markOrderPrinted } from "@/lib/storage";
@@ -33,6 +33,8 @@ export default function OrderDetail() {
   const { toast } = useToast();
   const orders = useOrders();
   const [order, setOrder] = useState<Order | null>(null);
+  const [showCancel, setShowCancel] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -45,15 +47,17 @@ export default function OrderDetail() {
     return <div className="p-8 text-center text-muted-foreground">Ordine non trovato</div>;
   }
 
-const isPrinted = false;
+  const isPrinted = order.printed ?? false;
 
   const handleStatusChange = (status: OrderStatus) => {
     updateOrderStatus(order.id, status);
+    setOrder({ ...order, status });
     toast({ title: "Stato aggiornato" });
   };
 
   const handleCancel = () => {
     updateOrderStatus(order.id, "annullato");
+    setOrder({ ...order, status: "annullato" });
     toast({ title: "Ordine annullato" });
     setLocation("/");
   };
@@ -61,89 +65,17 @@ const isPrinted = false;
   const handleEdit = () => {
     setLocation(`/nuovo?edit=${order.id}`);
   };
-  async function sendOrderToPrinter(order: Order) {
-  return new Promise((resolve, reject) => {
-    try {
-      const ws = new WebSocket("ws://192.168.1.55:40213");
-
-      ws.onopen = () => {
-        const text = generateReceiptText(order);
-
-        const payload = {
-          type: "text",
-          data: text
-        };
-
-        ws.send(JSON.stringify(payload));
-        ws.close();
-        resolve(true);
-      };
-
-      ws.onerror = (err) => {
-        console.error("Errore WebSocket:", err);
-        reject(err);
-      };
-    } catch (error) {
-      reject(error);
-    }
-  });
-}
-
 
   const handlePrint = async () => {
-    // Controlla se siamo su mobile
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    );
 
     if (isMobile) {
-      // Su mobile, solo RawBT - inizia il processo
       setIsPrinting(true);
 
       try {
         await sendOrderToPrinter(order);
-        function generateReceiptText(order: Order) {
-  let text = "";
-
-  text += `COMANDA #${order.progressiveNumber}\n`;
-  text += `Tipo: ${order.type}\n`;
-
-  if (order.type === "tavolo") {
-    text += order.tableNumber
-      ? `Tavolo: ${order.tableNumber}\n`
-      : `Coperti: ${order.coperti || 1}\n`;
-  } else {
-    text += `Orario: ${order.scheduledTime}\n`;
-  }
-
-  text += "-----------------------------\n";
-
-  const addLines = (title: string, items: any[]) => {
-    if (items.length === 0) return;
-    text += `\n${title}\n`;
-    items.forEach((l) => {
-      text += `${l.quantity} × ${l.name}\n`;
-      if (l.note) text += `  Note: ${l.note}\n`;
-    });
-  };
-
-  addLines("PIZZE", order.pizzas);
-  addLines("PANINI", order.panini);
-  addLines("STUZZICHERIE", order.contorni);
-  addLines("BEVANDE", order.bevande);
-
-  if (order.notes) {
-    text += `\nNOTE AGGIUNTIVE:\n${order.notes}\n`;
-  }
-
-  text += "\n-----------------------------\n";
-  text += `TOTALE: €${order.total.toFixed(2)}\n`;
-
-  text += "\n\n\n";
-
-  return text;
-}
-
-
-        
         toast({
           title: "Ordine inviato alla stampante!",
           description: "La comanda è stata stampata correttamente.",
@@ -162,13 +94,12 @@ const isPrinted = false;
       return;
     }
 
-    // Su desktop, comportamento normale
     if (!isPrinted) {
       markOrderPrinted(order.id);
+      setOrder({ ...order, printed: true });
     }
 
     window.print();
-
     sendOrderToPrinter(order).catch(() => {
       // Silenzioso su desktop
     });
@@ -176,74 +107,54 @@ const isPrinted = false;
 
   return (
     <div className="max-w-3xl mx-auto animate-in fade-in duration-300">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 no-print gap-3">
-        <Button variant="ghost" asChild className="pl-0 self-start">
-          <Link href="/">
-            <ChevronLeft className="mr-2 h-4 w-4" /> Torna a Dashboard
-          </Link>
+      <div className="flex items-center gap-2 sm:gap-3 flex-wrap mb-6">
+        <Button onClick={handlePrint} className="font-bold" disabled={isPrinting}>
+          <Printer className="mr-2 h-4 w-4" />
+          {isPrinting ? "Invio..." : isPrinted ? "Ristampa" : "Stampa"}
         </Button>
-        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-          {isPrinted && (
-            <Badge variant="outline" className="bg-muted/50 border-muted-foreground/30 text-muted-foreground py-1 px-3">
-              <Lock className="h-3 w-3 mr-1.5" /> Stampato — Bloccato
-            </Badge>
-          )}
 
-          <Select value={order.status} onValueChange={(v: OrderStatus) => handleStatusChange(v)}>
-            <SelectTrigger className="w-40 font-bold">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="in_preparazione">In Preparazione</SelectItem>
-              <SelectItem value="pronto">Pronto</SelectItem>
-              <SelectItem value="consegnato">Consegnato</SelectItem>
-              <SelectItem value="annullato">Annullato</SelectItem>
-            </SelectContent>
-          </Select>
+        <Button variant="destructive" onClick={() => setShowCancel(true)}>
+          <Ban className="mr-2 h-4 w-4" /> Annulla
+        </Button>
+      </div>
 
+      <div className="space-y-6">
+        <ComandaBody order={order} />
+
+        <div className="print-copy-2">
+          <ComandaBody order={order} />
         </div>
       </div>
 
-      <ComandaBody order={order} />
-      <div className="print-copy-2">
-        <ComandaBody order={order} />
-      </div>
-
-      <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3 mt-6 no-print">
+      <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3 mt-6">
         {!isPrinted && (
           <Button variant="outline" onClick={handleEdit}>
             <Edit className="mr-2 h-4 w-4" /> Modifica
           </Button>
         )}
 
-        <Button onClick={handlePrint} className="font-bold">
-          <Printer className="mr-2 h-4 w-4" /> {isPrinted ? "Ristampa" : "Stampa"}
+        <Button onClick={handlePrint} className="font-bold" disabled={isPrinting}>
+          <Printer className="mr-2 h-4 w-4" />
+          {isPrinting ? "Invio..." : isPrinted ? "Ristampa" : "Stampa"}
         </Button>
 
-        {!isPrinted && (
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive">
-                <Ban className="mr-2 h-4 w-4" /> Annulla
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Annullare questo ordine?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  L'ordine verrà contrassegnato come annullato.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>No, torna indietro</AlertDialogCancel>
-                <AlertDialogAction onClick={handleCancel} className="bg-destructive text-destructive-foreground">
-                  Sì, annulla ordine
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        )}
+        <Button variant="destructive" onClick={() => setShowCancel(true)}>
+          <Ban className="mr-2 h-4 w-4" /> Annulla
+        </Button>
       </div>
+
+      <AlertDialog open={showCancel} onOpenChange={setShowCancel}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confermi annullamento?</AlertDialogTitle>
+            <AlertDialogDescription>L’ordine verrà annullato.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annulla</AlertDialogCancel>
+            <AlertDialogAction onClick={handleCancel}>Conferma</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -394,8 +305,10 @@ function ComandaBody({ order }: { order: Order }) {
 
           {(() => {
             const hasGeneralNote = !!(order.notes && order.notes.trim());
-            const hasLineNote = [...order.pizzas, ...order.panini].some(l => (l.note || '').trim().length > 0);
-            return (hasGeneralNote || hasLineNote) ? (
+            const hasLineNote = [...order.pizzas, ...order.panini].some(
+              (l) => (l.note || "").trim().length > 0
+            );
+            return hasGeneralNote || hasLineNote ? (
               <div className="border-4 border-black p-3 text-center font-bold text-2xl uppercase tracking-widest mt-6">
                 ⚠ Attenzione Ricalcola ⚠
               </div>
