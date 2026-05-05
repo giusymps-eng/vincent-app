@@ -66,24 +66,22 @@ export default function OrderDetail() {
   const handlePrint = async () => {
     setIsPrinting(true);
     try {
-      // Tenta di inviare alla stampante via RawBT
-      try {
-        await sendOrderToPrinter(order);
-        toast({ title: "Ordine inviato alla stampante" });
-      } catch (printerError) {
-        console.warn("RawBT printer not available, proceeding with local print:", printerError);
-        toast({ 
-          title: "Stampante Bluetooth non disponibile",
-          description: "Procedendo con stampa locale",
-          variant: "default",
-        });
-      }
-      
+      // Marca come stampato subito
       if (!isPrinted) {
         markOrderPrinted(order.id);
       }
       
-      setTimeout(() => window.print(), 50);
+      // Invia la stampa locale
+      window.print();
+      
+      // Invia a RawBT in background (non blocca la stampa locale)
+      sendOrderToPrinter(order)
+        .then(() => {
+          toast({ title: "Ordine inviato alla stampante Bluetooth" });
+        })
+        .catch(() => {
+          console.warn("RawBT printer not available");
+        });
     } catch (error) {
       toast({
         title: "Errore nella stampa",
