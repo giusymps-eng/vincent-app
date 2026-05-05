@@ -63,17 +63,38 @@ export default function OrderDetail() {
   };
 
   const handlePrint = () => {
-    // Marca come stampato
+    // Controlla se siamo su mobile
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+      // Su mobile, mostra messaggio e non aprire print dialog
+      toast({
+        title: "Stampa non disponibile",
+        description: "Usa un computer per stampare le comande. L'ordine è stato inviato alla stampante Bluetooth.",
+        variant: "default",
+      });
+      
+      // Marca come stampato e invia a RawBT
+      if (!isPrinted) {
+        markOrderPrinted(order.id);
+      }
+      
+      sendOrderToPrinter(order).catch(() => {
+        // Silenzioso
+      });
+      
+      return;
+    }
+    
+    // Su desktop, comportamento normale
     if (!isPrinted) {
       markOrderPrinted(order.id);
     }
     
-    // Apri il dialog di stampa del browser
     window.print();
     
-    // Invia a RawBT in background (non blocca)
     sendOrderToPrinter(order).catch(() => {
-      // Silenzioso - la stampa locale è già iniziata
+      // Silenzioso
     });
   };
 
