@@ -33,7 +33,6 @@ export default function OrderDetail() {
   const { toast } = useToast();
   const orders = useOrders();
   const [order, setOrder] = useState<Order | null>(null);
-  const [isPrinting, setIsPrinting] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -63,16 +62,17 @@ export default function OrderDetail() {
     setLocation(`/nuovo?edit=${order.id}`);
   };
 
-  const handlePrint = async () => {
-    setIsPrinting(true);
+  const handlePrint = () => {
     try {
       // Marca come stampato subito
       if (!isPrinted) {
         markOrderPrinted(order.id);
       }
       
-      // Invia la stampa locale
-      window.print();
+      // Invia la stampa locale (blocco finché il dialog non si chiude)
+      setTimeout(() => {
+        window.print();
+      }, 100);
       
       // Invia a RawBT in background (non blocca la stampa locale)
       sendOrderToPrinter(order)
@@ -88,8 +88,6 @@ export default function OrderDetail() {
         description: error instanceof Error ? error.message : "Si è verificato un errore",
         variant: "destructive",
       });
-    } finally {
-      setIsPrinting(false);
     }
   };
 
@@ -135,8 +133,8 @@ export default function OrderDetail() {
           </Button>
         )}
 
-        <Button onClick={handlePrint} className="font-bold" disabled={isPrinting}>
-          <Printer className="mr-2 h-4 w-4" /> {isPrinting ? "Stampa in corso..." : isPrinted ? "Ristampa" : "Stampa"}
+        <Button onClick={handlePrint} className="font-bold">
+          <Printer className="mr-2 h-4 w-4" /> {isPrinted ? "Ristampa" : "Stampa"}
         </Button>
 
         {!isPrinted && (

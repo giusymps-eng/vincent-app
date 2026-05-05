@@ -1,6 +1,8 @@
 import type { Order } from "@/types";
 
 const RAWBT_API = process.env.VITE_RAWBT_API || "http://localhost:3000/api";
+const PRINTER_NAME = "lan_printer";
+const PRINTER_DRIVER = "esc_general";
 
 export async function sendOrderToPrinter(order: Order): Promise<void> {
   try {
@@ -10,6 +12,8 @@ export async function sendOrderToPrinter(order: Order): Promise<void> {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
+        printer: PRINTER_NAME,
+        driver: PRINTER_DRIVER,
         order: {
           id: order.id,
           progressiveNumber: order.progressiveNumber,
@@ -34,8 +38,8 @@ export async function sendOrderToPrinter(order: Order): Promise<void> {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || "Errore nella stampa");
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.message || `Errore stampa: ${response.statusText}`);
     }
   } catch (error) {
     console.error("RawBT Print Error:", error);
