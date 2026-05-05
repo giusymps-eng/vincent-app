@@ -45,7 +45,7 @@ export default function OrderDetail() {
     return <div className="p-8 text-center text-muted-foreground">Ordine non trovato</div>;
   }
 
-  const isPrinted = !!order.printed;
+const isPrinted = false;
 
   const handleStatusChange = (status: OrderStatus) => {
     updateOrderStatus(order.id, status);
@@ -143,11 +143,7 @@ export default function OrderDetail() {
 }
 
 
-        // Marca come stampato solo se RawBT ha successo
-        if (!isPrinted) {
-          markOrderPrinted(order.id);
-        }
-
+        
         toast({
           title: "Ordine inviato alla stampante!",
           description: "La comanda è stata stampata correttamente.",
