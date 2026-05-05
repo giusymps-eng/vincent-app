@@ -2,6 +2,7 @@ import { useParams, Link, useLocation } from "wouter";
 import { useEffect, useState } from "react";
 import { Printer, ChevronLeft, Edit, Ban, Lock } from "lucide-react";
 import { useOrders, updateOrderStatus, markOrderPrinted } from "@/lib/storage";
+import { sendOrderToPrinter } from "@/lib/rawbt";
 import type { Order, OrderStatus } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -60,11 +61,24 @@ export default function OrderDetail() {
     setLocation(`/nuovo?edit=${order.id}`);
   };
 
-  const handlePrint = () => {
-    if (!isPrinted) {
-      markOrderPrinted(order.id);
+  const handlePrint = async () => {
+    try {
+      // Invia all'stampante via RawBT
+      await sendOrderToPrinter(order);
+      
+      if (!isPrinted) {
+        markOrderPrinted(order.id);
+      }
+      
+      toast({ title: "Ordine inviato alla stampante" });
+      setTimeout(() => window.print(), 50);
+    } catch (error) {
+      toast({
+        title: "Errore nella stampa",
+        description: error instanceof Error ? error.message : "Non è stato possibile inviare l'ordine alla stampante",
+        variant: "destructive",
+      });
     }
-    setTimeout(() => window.print(), 50);
   };
 
   return (
