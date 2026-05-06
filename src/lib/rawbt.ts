@@ -1,31 +1,18 @@
 import type { Order } from "@/types";
 
 export async function sendOrderToPrinter(order: Order) {
-  return new Promise((resolve, reject) => {
-    try {
-      const ws = new WebSocket("ws://192.168.1.55:40213");
+  const text = generateReceiptText(order);
+  const encoded = encodeURIComponent(text);
 
-      ws.onopen = () => {
-        const text = generateReceiptText(order);
+  // RawBT protocol
+  const url = `rawbt:print?data=${encoded}`;
 
-        const payload = {
-          type: "text",
-          data: text
-        };
+  // Apertura compatibile con Android
+  setTimeout(() => {
+    window.open(url, "_self");
+  }, 100);
 
-        ws.send(JSON.stringify(payload));
-        ws.close();
-        resolve(true);
-      };
-
-      ws.onerror = (err) => {
-        console.error("Errore WebSocket:", err);
-        reject(err);
-      };
-    } catch (error) {
-      reject(error);
-    }
-  });
+  return true;
 }
 
 function generateReceiptText(order: Order) {
