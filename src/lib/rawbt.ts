@@ -100,18 +100,14 @@ function generateReceiptText(order: Order) {
     }
   }
 
-  const mustRecalc = hasNotes || hasLineNotes;
-
-  if (mustRecalc) {
-    text += "\n";
-    text += "⚠⚠⚠ ATTENZIONE RICALCOLA ⚠⚠⚠\n";
-    text += "------------------------------------------------\n";
-  }
-
   if (order.notes) {
     text += "\nNOTE AGGIUNTIVE:\n";
     text += `${order.notes}\n`;
   }
+
+  text += "\n";
+  text += "⚠⚠⚠ ATTENZIONE RICALCOLA ⚠⚠⚠\n";
+  text += "------------------------------------------------\n";
 
   if (order.coperto !== undefined) {
     text += `\nCoperto €${order.coperto.toFixed(2)}\n`;
