@@ -123,7 +123,7 @@ function generateReceiptText(order: Order) {
   text += "================================================\n";
 
   // TOTALE
-  const totalStr = `TOTALE €${order.total.toFixed(2)}`;
+  const totalStr = `Ricalcola il TOTALE €${order.total.toFixed(2)}`;
   text += center(totalStr);
 
   // SPAZIO EXTRA PER STRAPPO
