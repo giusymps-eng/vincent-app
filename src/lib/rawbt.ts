@@ -1,4 +1,4 @@
-import type { Order } from "../types/order";
+import type { Order } from "../types";
 
 export async function sendOrderToPrinter(order: Order) {
   const text = generateReceiptText(order);
@@ -41,13 +41,25 @@ function generateReceiptText(order: Order) {
   const orario = order.scheduledTime ? `Orario: ${order.scheduledTime}` : "";
   text += `${tipo} ${orario}\n`;
 
-  // NOME, TELEFONO, INDIRIZZO
-  if (order.name) text += `Nome: ${order.name}\n`;
-  if (order.phone) text += `Tel: ${order.phone}\n`;
-  if (order.address) text += `Indirizzo: ${order.address}\n`;
+  // CLIENTE, TELEFONO, INDIRIZZO
+  if (order.customerName) text += `Nome: ${order.customerName}\n`;
+  if (order.customerPhone) text += `Tel: ${order.customerPhone}\n`;
+  if (order.customerAddress) text += `Indirizzo: ${order.customerAddress}\n`;
 
-  // TAVOLO E COPERTI
-  if (order.table) text += `Tavolo: ${order.table}    Coperti: ${order.coperti || 1}\n`;
+  // TAVOLO / ORARIO / COPERTI
+  if (order.type === "tavolo") {
+    if (order.tableNumber) {
+      text += `Tavolo: ${order.tableNumber}    Coperti: ${order.coperti || 1}\n`;
+    } else {
+      text += `Coperti: ${order.coperti || 1}\n`;
+    }
+  } else if (order.scheduledTime) {
+    text += `Orario: ${order.scheduledTime}\n`;
+  }
+
+  if (order.status) {
+    text += `Stato: ${order.status}\n`;
+  }
 
   text += "------------------------------------------------\n";
 
@@ -58,7 +70,7 @@ function generateReceiptText(order: Order) {
     items.forEach((l) => {
       const qty = `${l.quantity}×`.padEnd(4);
       const name = l.name.padEnd(28);
-      const price = l.price ? `€${l.price.toFixed(2)}` : "";
+      const price = l.price ? `€${(l.price * l.quantity).toFixed(2)}` : "";
       text += `${qty}${name}${price.padStart(10)}\n`;
       if (l.note) text += `  Note: ${l.note}\n`;
     });
@@ -70,16 +82,12 @@ function generateReceiptText(order: Order) {
   addLines("BEVANDE", order.bevande);
 
   // PIZZE TAGLIATE
-  if (order.pizzeTagliate) {
+  if (order.cutPizzas) {
     text += "\n✓ PIZZE TAGLIATE\n";
   }
 
   // ALERT RICALCOLA
-  const mustRecalc =
-    order.showRecalcAlert === true ||
-    order.recalc === true ||
-    order.alert === true ||
-    (order.notes && order.notes.toLowerCase().includes("ricalcola"));
+  const mustRecalc = order.notes?.toLowerCase().includes("ricalcola");
 
   if (mustRecalc) {
     text += "\n";
@@ -94,9 +102,10 @@ function generateReceiptText(order: Order) {
   }
 
   // COPERTO E CONSEGNA
-  if (order.coperti) text += `\nCoperto €${(order.coperti * 1).toFixed(2)}\n`;
-  if (order.deliveryCost) text += `Consegna €${order.deliveryCost.toFixed(2)}\n`;
+  if (order.coperto) text += `\nCoperto €${order.coperto.toFixed(2)}\n`;
+  if (order.deliveryFee) text += `Consegna €${order.deliveryFee.toFixed(2)}\n`;
 
+  
   text += "================================================\n";
 
   // TOTALE
