@@ -37,13 +37,9 @@ function generateReceiptText(order: Order) {
   text += center(`COMANDA #${order.progressiveNumber}`);
   text += "------------------------------------------------\n";
 
-  // INFO ORDINE
-  if (order.type === "tavolo") {
-    const tavoloName = order.tableName || order.tableNumber || "";
-    text += `TAVOLO: ${tavoloName}    Coperti: ${order.coperti || 1}\n`;
-  } else {
-    text += `Asporto - Orario: ${order.scheduledTime}\n`;
-  }
+  // INFO ORDINE — VERSIONE CORRETTA
+  const tavoloName = order.table || order.tableName || order.tableNumber || "";
+  text += `TAVOLO: ${tavoloName}    Coperti: ${order.coperti || 1}\n`;
 
   if (order.name) {
     text += `Nome: ${order.name}\n`;
@@ -77,11 +73,11 @@ function generateReceiptText(order: Order) {
   // ------------------------------------------------------------
   // ALERT RICALCOLA — VERSIONE DEFINITIVA
   // ------------------------------------------------------------
+
   const mustRecalc =
-    order.recalcNeeded ||
-    order.recalc ||
-    order.alert ||
-    order.warning ||
+    order.showRecalcAlert === true ||        // campo reale della tua UI
+    order.recalc === true ||                 // fallback
+    order.alert === true ||                  // fallback
     (order.notes && order.notes.toLowerCase().includes("ricalcola"));
 
   if (mustRecalc) {
