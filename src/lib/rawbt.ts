@@ -3,13 +3,12 @@ import type { Order } from "../types/order";
 export async function sendOrderToPrinter(order: Order) {
   const text = generateReceiptText(order);
 
-  // Doppia copia + taglio carta
-  const finalText = text + "\n\n\n" + text + "{cut}";
+  // Doppia copia + taglio carta + righe extra
+  const finalText = text + "\n\n\n" + text + "\n\n\n\n{cut:full}";
 
   const encoded = encodeURIComponent(finalText);
   const url = `rawbt:print?data=${encoded}`;
 
-  // Workaround Chrome: iframe invisibile
   const iframe = document.createElement("iframe");
   iframe.style.display = "none";
   iframe.src = url;
@@ -77,9 +76,9 @@ function generateReceiptText(order: Order) {
   // ALERT RICALCOLA
   if (order.recalcNeeded) {
     text += "\n";
-    text += "***************** ATTENZIONE *****************\n";
-    text += "***************   RICALCOLA   ****************\n";
-    text += "************************************************\n";
+    text += "**************** ATTENZIONE ****************\n";
+    text += "***************   RICALCOLA   ***************\n";
+    text += "********************************************\n";
   }
 
   // NOTE AGGIUNTIVE
@@ -99,7 +98,8 @@ function generateReceiptText(order: Order) {
   const totalStr = `TOTALE €${order.total.toFixed(2)}`;
   text += center(totalStr);
 
-  text += "\n\n\n";
+  // RIGHE EXTRA PER STRAPPO PERFETTO
+  text += "\n\n\n\n";
 
   return text;
 }
