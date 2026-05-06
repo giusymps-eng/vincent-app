@@ -2,8 +2,6 @@ import type { Order } from "../types/order";
 
 export async function sendOrderToPrinter(order: Order) {
   const text = generateReceiptText(order);
-
-  // Doppia copia + righe extra + taglio carta
   const finalText = text + "\n\n\n" + text + "\n\n\n\n{cut:full}";
 
   const encoded = encodeURIComponent(finalText);
@@ -14,17 +12,13 @@ export async function sendOrderToPrinter(order: Order) {
   iframe.src = url;
   document.body.appendChild(iframe);
 
-  setTimeout(() => {
-    document.body.removeChild(iframe);
-  }, 1000);
-
+  setTimeout(() => document.body.removeChild(iframe), 1000);
   return true;
 }
 
 // ------------------------------------------------------------
-// 80mm LAYOUT COMPLETO + ALERT RICALCOLA + NOME TAVOLO
+// STAMPA COMPLETA — TUTTI I DATI VISIBILI NELLA SCHEDA
 // ------------------------------------------------------------
-
 function generateReceiptText(order: Order) {
   let text = "";
 
@@ -37,30 +31,29 @@ function generateReceiptText(order: Order) {
   text += center(`COMANDA #${order.progressiveNumber}`);
   text += "------------------------------------------------\n";
 
-  // INFO ORDINE — VERSIONE CORRETTA
-  const tavoloName = order.table || order.tableName || order.tableNumber || "";
-  text += `TAVOLO: ${tavoloName}    Coperti: ${order.coperti || 1}\n`;
+  // TIPO ORDINE + ORARIO
+  const tipo = order.type?.toUpperCase() || "ORDINE";
+  const orario = order.scheduledTime ? `Orario: ${order.scheduledTime}` : "";
+  text += `${tipo} ${orario}\n`;
 
-  if (order.name) {
-    text += `Nome: ${order.name}\n`;
-  }
+  // NOME E INDIRIZZO
+  if (order.name) text += `Nome: ${order.name}\n`;
+  if (order.address) text += `Indirizzo: ${order.address}\n`;
+
+  // TAVOLO E COPERTI
+  if (order.table) text += `Tavolo: ${order.table}    Coperti: ${order.coperti || 1}\n`;
 
   text += "------------------------------------------------\n";
 
-  // FUNZIONE PER LE SEZIONI
+  // SEZIONI
   const addLines = (title: string, items: any[]) => {
     if (!items || items.length === 0) return;
-
     text += `\n${title}\n`;
-
     items.forEach((l) => {
       const qty = `${l.quantity}×`.padEnd(4);
       const name = l.name.padEnd(28);
       const price = l.price ? `€${l.price.toFixed(2)}` : "";
-
-      const line = `${qty}${name}${price.padStart(10)}`;
-      text += line + "\n";
-
+      text += `${qty}${name}${price.padStart(10)}\n`;
       if (l.note) text += `  Note: ${l.note}\n`;
     });
   };
@@ -70,14 +63,11 @@ function generateReceiptText(order: Order) {
   addLines("STUZZICHERIE", order.contorni);
   addLines("BEVANDE", order.bevande);
 
-  // ------------------------------------------------------------
-  // ALERT RICALCOLA — VERSIONE DEFINITIVA
-  // ------------------------------------------------------------
-
+  // ALERT RICALCOLA
   const mustRecalc =
-    order.showRecalcAlert === true ||        // campo reale della tua UI
-    order.recalc === true ||                 // fallback
-    order.alert === true ||                  // fallback
+    order.showRecalcAlert === true ||
+    order.recalc === true ||
+    order.alert === true ||
     (order.notes && order.notes.toLowerCase().includes("ricalcola"));
 
   if (mustRecalc) {
@@ -92,10 +82,9 @@ function generateReceiptText(order: Order) {
     text += `${order.notes}\n`;
   }
 
-  // COPERTO
-  if (order.coperti) {
-    text += `\nCoperto €${(order.coperti * 1).toFixed(2)}\n`;
-  }
+  // COPERTO E CONSEGNA
+  if (order.coperti) text += `\nCoperto €${(order.coperti * 1).toFixed(2)}\n`;
+  if (order.deliveryCost) text += `Consegna €${order.deliveryCost.toFixed(2)}\n`;
 
   text += "================================================\n";
 
@@ -103,7 +92,7 @@ function generateReceiptText(order: Order) {
   const totalStr = `TOTALE €${order.total.toFixed(2)}`;
   text += center(totalStr);
 
-  // RIGHE EXTRA PER STRAPPO PERFETTO
+  // SPAZIO EXTRA PER STRAPPO
   text += "\n\n\n\n";
 
   return text;
