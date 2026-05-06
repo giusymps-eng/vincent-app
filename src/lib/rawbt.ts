@@ -2,6 +2,8 @@ import type { Order } from "../types/order";
 
 export async function sendOrderToPrinter(order: Order) {
   const text = generateReceiptText(order);
+
+  // Doppia copia + righe extra + taglio carta
   const finalText = text + "\n\n\n" + text + "\n\n\n\n{cut:full}";
 
   const encoded = encodeURIComponent(finalText);
@@ -12,12 +14,15 @@ export async function sendOrderToPrinter(order: Order) {
   iframe.src = url;
   document.body.appendChild(iframe);
 
-  setTimeout(() => document.body.removeChild(iframe), 1000);
+  setTimeout(() => {
+    document.body.removeChild(iframe);
+  }, 1000);
+
   return true;
 }
 
 // ------------------------------------------------------------
-// STAMPA COMPLETA — TUTTI I DATI VISIBILI NELLA SCHEDA
+// STAMPA COMPLETA — RIPRODUCE LA SCHEDA DELL’ORDINE
 // ------------------------------------------------------------
 function generateReceiptText(order: Order) {
   let text = "";
@@ -36,8 +41,9 @@ function generateReceiptText(order: Order) {
   const orario = order.scheduledTime ? `Orario: ${order.scheduledTime}` : "";
   text += `${tipo} ${orario}\n`;
 
-  // NOME E INDIRIZZO
+  // NOME, TELEFONO, INDIRIZZO
   if (order.name) text += `Nome: ${order.name}\n`;
+  if (order.phone) text += `Tel: ${order.phone}\n`;
   if (order.address) text += `Indirizzo: ${order.address}\n`;
 
   // TAVOLO E COPERTI
@@ -62,6 +68,11 @@ function generateReceiptText(order: Order) {
   addLines("PANINI", order.panini);
   addLines("STUZZICHERIE", order.contorni);
   addLines("BEVANDE", order.bevande);
+
+  // PIZZE TAGLIATE
+  if (order.pizzeTagliate) {
+    text += "\n✓ PIZZE TAGLIATE\n";
+  }
 
   // ALERT RICALCOLA
   const mustRecalc =
