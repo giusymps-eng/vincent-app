@@ -75,9 +75,8 @@ function generateReceiptText(order: Order) {
   addLines("BEVANDE", order.bevande);
 
   // ------------------------------------------------------------
-  // ALERT RICALCOLA — VERSIONE CHE FUNZIONA SEMPRE
+  // ALERT RICALCOLA — VERSIONE DEFINITIVA
   // ------------------------------------------------------------
-
   const mustRecalc =
     order.recalcNeeded ||
     order.recalc ||
@@ -87,9 +86,8 @@ function generateReceiptText(order: Order) {
 
   if (mustRecalc) {
     text += "\n";
-    text += "**************** ATTENZIONE ****************\n";
-    text += "***************   RICALCOLA   ***************\n";
-    text += "********************************************\n\n";
+    text += "⚠⚠⚠ ATTENZIONE RICALCOLA ⚠⚠⚠\n";
+    text += "------------------------------------------------\n";
   }
 
   // NOTE AGGIUNTIVE
