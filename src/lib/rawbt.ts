@@ -3,7 +3,7 @@ import type { Order } from "../types/order";
 export async function sendOrderToPrinter(order: Order) {
   const text = generateReceiptText(order);
 
-  // Doppia copia + taglio carta + righe extra
+  // Doppia copia + righe extra + taglio carta
   const finalText = text + "\n\n\n" + text + "\n\n\n\n{cut:full}";
 
   const encoded = encodeURIComponent(finalText);
@@ -22,7 +22,7 @@ export async function sendOrderToPrinter(order: Order) {
 }
 
 // ------------------------------------------------------------
-// 80mm LAYOUT COMPLETO + ALERT RICALCOLA + TAGLIO CARTA
+// 80mm LAYOUT COMPLETO + ALERT RICALCOLA SEMPRE VISIBILE
 // ------------------------------------------------------------
 
 function generateReceiptText(order: Order) {
@@ -73,12 +73,22 @@ function generateReceiptText(order: Order) {
   addLines("STUZZICHERIE", order.contorni);
   addLines("BEVANDE", order.bevande);
 
-  // ALERT RICALCOLA
-  if (order.recalcNeeded) {
+  // ------------------------------------------------------------
+  // ALERT RICALCOLA — VERSIONE CHE FUNZIONA SEMPRE
+  // ------------------------------------------------------------
+
+  const mustRecalc =
+    order.recalcNeeded ||
+    order.recalc ||
+    order.alert ||
+    order.warning ||
+    (order.notes && order.notes.toLowerCase().includes("ricalcola"));
+
+  if (mustRecalc) {
     text += "\n";
     text += "**************** ATTENZIONE ****************\n";
     text += "***************   RICALCOLA   ***************\n";
-    text += "********************************************\n";
+    text += "********************************************\n\n";
   }
 
   // NOTE AGGIUNTIVE
