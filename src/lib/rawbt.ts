@@ -41,10 +41,15 @@ function generateReceiptText(order: Order) {
   const orario = order.scheduledTime ? `Orario: ${order.scheduledTime}` : "";
   text += `${tipo} ${orario}\n`;
 
+  const legacyOrder = order as any;
+  const customerName = order.customerName || legacyOrder.name;
+  const customerPhone = order.customerPhone || legacyOrder.phone;
+  const customerAddress = order.customerAddress || legacyOrder.address;
+
   // CLIENTE, TELEFONO, INDIRIZZO
-  if (order.customerName) text += `Nome: ${order.customerName}\n`;
-  if (order.customerPhone) text += `Tel: ${order.customerPhone}\n`;
-  if (order.customerAddress) text += `Indirizzo: ${order.customerAddress}\n`;
+  if (customerName) text += `Nome: ${customerName}\n`;
+  if (customerPhone) text += `Tel: ${customerPhone}\n`;
+  if (customerAddress) text += `Indirizzo: ${customerAddress}\n`;
 
   // TAVOLO / ORARIO / COPERTI
   if (order.type === "tavolo") {
@@ -81,13 +86,21 @@ function generateReceiptText(order: Order) {
   addLines("STUZZICHERIE", order.contorni);
   addLines("BEVANDE", order.bevande);
 
-  // PIZZE TAGLIATE
-  if (order.cutPizzas) {
-    text += "\n✓ PIZZE TAGLIATE\n";
+  const hasPizzas = order.pizzas.length > 0;
+  const hasNotes = !!order.notes?.trim();
+  const hasLineNotes = [...order.pizzas, ...order.panini, ...order.contorni, ...order.bevande].some(
+    (line) => (line.note || "").trim().length > 0,
+  );
+
+  if (hasPizzas) {
+    if (order.cutPizzas || (order as any).pizzeTagliate) {
+      text += "\n✓ PIZZE TAGLIATE\n";
+    } else {
+      text += "\n□ Pizze NON tagliate\n";
+    }
   }
 
-  // ALERT RICALCOLA
-  const mustRecalc = order.notes?.toLowerCase().includes("ricalcola");
+  const mustRecalc = hasNotes || hasLineNotes;
 
   if (mustRecalc) {
     text += "\n";
@@ -95,17 +108,22 @@ function generateReceiptText(order: Order) {
     text += "------------------------------------------------\n";
   }
 
-  // NOTE AGGIUNTIVE
   if (order.notes) {
     text += "\nNOTE AGGIUNTIVE:\n";
     text += `${order.notes}\n`;
   }
 
-  // COPERTO E CONSEGNA
-  if (order.coperto) text += `\nCoperto €${order.coperto.toFixed(2)}\n`;
-  if (order.deliveryFee) text += `Consegna €${order.deliveryFee.toFixed(2)}\n`;
+  if (order.coperto !== undefined) {
+    text += `\nCoperto €${order.coperto.toFixed(2)}\n`;
+  }
 
-  
+  if (order.deliveryFee !== undefined) {
+    text += `Consegna €${order.deliveryFee.toFixed(2)}\n`;
+  } else if ((order as any).deliveryCost !== undefined) {
+    text += `Consegna €${((order as any).deliveryCost as number).toFixed(2)}\n`;
+  }
+
+
   text += "================================================\n";
 
   // TOTALE
