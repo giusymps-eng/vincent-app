@@ -122,7 +122,7 @@ function generateReceiptText(order: Order) {
 
   text += "================================================\n";
 
-  // TOTALE
+  // RICALCOLA IL TOTALE
   const totalStr = `Ricalcola il TOTALE €${order.total.toFixed(2)}`;
   text += center(totalStr);
 
