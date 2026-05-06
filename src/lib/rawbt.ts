@@ -3,7 +3,7 @@ import type { Order } from "../types/order";
 export async function sendOrderToPrinter(order: Order) {
   const text = generateReceiptText(order);
 
-  // Doppia copia
+  // Doppia copia + taglio carta
   const finalText = text + "\n\n\n" + text + "{cut}";
 
   const encoded = encodeURIComponent(finalText);
@@ -23,24 +23,24 @@ export async function sendOrderToPrinter(order: Order) {
 }
 
 // ------------------------------------------------------------
-// 80mm LAYOUT + LOGO TESTUALE + TAGLIO CARTA + DOPPIA COPIA
+// 80mm LAYOUT COMPLETO + ALERT RICALCOLA + TAGLIO CARTA
 // ------------------------------------------------------------
 
 function generateReceiptText(order: Order) {
   let text = "";
 
-  // LOGO TESTUALE (centrato)
+  // LOGO TESTUALE
   text += "================================================\n";
   text += center("VINCENT'S PUB");
   text += "================================================\n\n";
 
-  // Titolo comanda
+  // TITOLO COMANDA
   text += center(`COMANDA #${order.progressiveNumber}`);
   text += "------------------------------------------------\n";
 
-  // Info ordine
+  // INFO ORDINE
   if (order.type === "tavolo") {
-    text += `TAVOLO ${order.tableNumber || ""}   Coperti: ${order.coperti || 1}\n`;
+    text += `TAVOLO: ${order.tableNumber || ""}    Coperti: ${order.coperti || 1}\n`;
   } else {
     text += `Asporto - Orario: ${order.scheduledTime}\n`;
   }
@@ -51,7 +51,7 @@ function generateReceiptText(order: Order) {
 
   text += "------------------------------------------------\n";
 
-  // Funzione per allineare quantità, nome e prezzo
+  // FUNZIONE PER LE SEZIONI
   const addLines = (title: string, items: any[]) => {
     if (!items || items.length === 0) return;
 
@@ -59,7 +59,7 @@ function generateReceiptText(order: Order) {
 
     items.forEach((l) => {
       const qty = `${l.quantity}×`.padEnd(4);
-      const name = l.name.padEnd(30);
+      const name = l.name.padEnd(28);
       const price = l.price ? `€${l.price.toFixed(2)}` : "";
 
       const line = `${qty}${name}${price.padStart(10)}`;
@@ -74,19 +74,28 @@ function generateReceiptText(order: Order) {
   addLines("STUZZICHERIE", order.contorni);
   addLines("BEVANDE", order.bevande);
 
-  // Note generali
-  if (order.notes) {
-    text += `\nNOTE:\n${order.notes}\n`;
+  // ALERT RICALCOLA
+  if (order.recalcNeeded) {
+    text += "\n";
+    text += "***************** ATTENZIONE *****************\n";
+    text += "***************   RICALCOLA   ****************\n";
+    text += "************************************************\n";
   }
 
-  // Coperto
+  // NOTE AGGIUNTIVE
+  if (order.notes) {
+    text += "\nNOTE AGGIUNTIVE:\n";
+    text += `${order.notes}\n`;
+  }
+
+  // COPERTO
   if (order.coperti) {
     text += `\nCoperto €${(order.coperti * 1).toFixed(2)}\n`;
   }
 
-  text += "------------------------------------------------\n";
+  text += "================================================\n";
 
-  // Totale centrato
+  // TOTALE
   const totalStr = `TOTALE €${order.total.toFixed(2)}`;
   text += center(totalStr);
 
@@ -95,7 +104,7 @@ function generateReceiptText(order: Order) {
   return text;
 }
 
-// Funzione per centrare testo su 48 caratteri
+// CENTRATURA TESTO
 function center(str: string) {
   const totalWidth = 48;
   const padding = Math.floor((totalWidth - str.length) / 2);
