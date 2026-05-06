@@ -106,7 +106,7 @@ function generateReceiptText(order: Order) {
   }
 
   text += "\n";
-  text += "⚠⚠⚠ ATTENZIONE RICALCOLA ⚠⚠⚠\n";
+  text += center("ATTENZIONE RICALCOLA");
   text += "------------------------------------------------\n";
 
   if (order.coperto !== undefined) {
