@@ -22,7 +22,7 @@ export async function sendOrderToPrinter(order: Order) {
 }
 
 // ------------------------------------------------------------
-// 80mm LAYOUT COMPLETO + ALERT RICALCOLA SEMPRE VISIBILE
+// 80mm LAYOUT COMPLETO + ALERT RICALCOLA + NOME TAVOLO
 // ------------------------------------------------------------
 
 function generateReceiptText(order: Order) {
@@ -39,7 +39,8 @@ function generateReceiptText(order: Order) {
 
   // INFO ORDINE
   if (order.type === "tavolo") {
-    text += `TAVOLO: ${order.tableNumber || ""}    Coperti: ${order.coperti || 1}\n`;
+    const tavoloName = order.tableName || order.tableNumber || "";
+    text += `TAVOLO: ${tavoloName}    Coperti: ${order.coperti || 1}\n`;
   } else {
     text += `Asporto - Orario: ${order.scheduledTime}\n`;
   }
