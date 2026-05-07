@@ -1,10 +1,36 @@
 import type { Order } from "../types";
 
 export async function sendOrderToPrinter(order: Order) {
-  const text = generateReceiptText(order);
+  // --- COPIA SALA ---
+  const salaText = generateReceiptText(order);
 
-  // Doppia copia + righe extra + taglio carta
-  const finalText = text + "\n\n\n" + text + "\n\n\n\n{cut:full}";
+  // --- COPIA CUCINA ---
+  const cucinaOrder = structuredClone(order);
+
+  // Flag per dire alla stampa che è copia cucina
+  (cucinaOrder as any).isKitchenCopy = true;
+
+  // Azzeriamo i prezzi (non verranno comunque mostrati)
+  const zeroPrice = (items?: any[]) => {
+    if (!items) return;
+    items.forEach(i => i.price = 0);
+  };
+
+  zeroPrice(cucinaOrder.pizzas);
+  zeroPrice(cucinaOrder.panini);
+  zeroPrice(cucinaOrder.contorni);
+  zeroPrice(cucinaOrder.bevande);
+
+  cucinaOrder.coperto = 0;
+  cucinaOrder.deliveryFee = 0;
+  cucinaOrder.total = 0;
+
+  const cucinaText = generateReceiptText(cucinaOrder);
+
+  // --- STAMPA FINALE ---
+  const finalText =
+    salaText + "\n\n\n" +
+    cucinaText + "\n\n\n\n{cut:full}";
 
   const encoded = encodeURIComponent(finalText);
   const url = `rawbt:print?data=${encoded}`;
@@ -20,6 +46,7 @@ export async function sendOrderToPrinter(order: Order) {
 
   return true;
 }
+
 
 // ------------------------------------------------------------
 // STAMPA COMPLETA — RIPRODUCE LA SCHEDA DELL’ORDINE
@@ -67,19 +94,33 @@ function generateReceiptText(order: Order) {
   }
 
   text += "------------------------------------------------\n";
+// SEZIONI
+const addLines = (title: string, items: any[]) => {
+  if (!items || items.length === 0) return;
 
-  // SEZIONI
-  const addLines = (title: string, items: any[]) => {
-    if (!items || items.length === 0) return;
-    text += `\n${title}\n`;
-    items.forEach((l) => {
-      const qty = `${l.quantity}×`.padEnd(4);
-      const name = l.name.padEnd(28);
-      const price = l.price ? `€${(l.price * l.quantity).toFixed(2)}` : "";
-      text += `${qty}${name}${price.padStart(10)}\n`;
-      if (l.note) text += `  Note: ${l.note}\n`;
-    });
-  };
+  const isKitchen = (order as any).isKitchenCopy === true;
+  // Testo grande per la cucina
+if (isKitchen) {
+  text += "\x1B!\x38"; // doppia altezza + doppia larghezza
+}
+
+  text += `\n${title}\n`;
+
+  items.forEach((l) => {
+    const qty = `${l.quantity}×`.padEnd(4);
+    const name = l.name.padEnd(28);
+
+    // 👉 NIENTE PREZZI SE È COPIA CUCINA
+    const price = isKitchen
+      ? ""
+      : (l.price ? `€${(l.price * l.quantity).toFixed(2)}` : "");
+
+    text += `${qty}${name}${price.padStart(10)}\n`;
+
+    if (l.note) text += `  Note: ${l.note}\n`;
+  });
+};
+
 
   addLines("PIZZE", order.pizzas);
   addLines("PANINI", order.panini);
@@ -128,7 +169,10 @@ function generateReceiptText(order: Order) {
 
   // SPAZIO EXTRA PER STRAPPO
   text += "\n\n\n\n";
-
+  // 🔥 TORNA AL TESTO NORMALE SE È COPIA CUCINA
+  if ((order as any).isKitchenCopy === true) {
+    text += "\x1B!\x00";
+}
   return text;
 }
 

@@ -7,6 +7,7 @@ import {
   ALL_MENU, AGGIUNTE_PIZZA, DELIVERY_FEE_PER_PIZZA,
   DELIVERY_FEE_FIXED_THRESHOLD, DELIVERY_FEE_FIXED, COPERTO, getAllPizzas,
   CATEGORY_LABELS,
+  SUPPLEMENTO_PANINO,
 } from "@/data/menu";
 import {
   saveOrder, useDeliverySlots, useCanFitInSlot, generateAsportoSlots,
@@ -204,17 +205,35 @@ export default function NewOrder() {
     });
   };
 
-  const pizzeCount = order.pizzas.reduce((a, l) => a + l.quantity, 0);
-  let deliveryFee = 0;
-  if (order.type === 'domicilio') {
-    if (pizzeCount > 0) {
-      if (pizzeCount >= DELIVERY_FEE_FIXED_THRESHOLD) {
-        deliveryFee = DELIVERY_FEE_FIXED;
-      } else {
-        deliveryFee = pizzeCount * DELIVERY_FEE_PER_PIZZA;
-      }
+  // Conteggi
+const pizzeCount = order.pizzas.reduce((a, l) => a + l.quantity, 0);
+const paniniCount = order.panini?.reduce((a, l) => a + l.quantity, 0) || 0;
+const paninazziCount = order.paninazzi?.reduce((a, l) => a + l.quantity, 0) || 0;
+
+let deliveryFee = 0;
+
+// Calcolo supplementi SOLO per domicilio
+if (order.type === "domicilio") {
+
+  // Supplemento pizze (già esistente)
+  if (pizzeCount > 0) {
+    if (pizzeCount >= DELIVERY_FEE_FIXED_THRESHOLD) {
+      deliveryFee = DELIVERY_FEE_FIXED;
+    } else {
+      deliveryFee = pizzeCount * DELIVERY_FEE_PER_PIZZA;
     }
   }
+
+  // Supplemento panini
+  if (paniniCount > 0) {
+    deliveryFee += paniniCount * SUPPLEMENTO_PANINO;
+  }
+
+  // Supplemento paninazzi
+  if (paninazziCount > 0) {
+    deliveryFee += paninazziCount * SUPPLEMENTO_PANINO;
+  }
+}
 
   let copertoTotal = 0;
   if (order.type === 'tavolo') {
