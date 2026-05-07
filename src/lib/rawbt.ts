@@ -64,9 +64,18 @@ function generateReceiptText(order: Order) {
   text += "------------------------------------------------\n";
 
   // TIPO ORDINE + ORARIO
-  const tipo = order.type?.toUpperCase() || "ORDINE";
-  const orario = order.scheduledTime ? `Orario: ${order.scheduledTime}` : "";
-  text += `${tipo} ${orario}\n`;
+ const tipo = order.type?.toUpperCase() || "ORDINE";
+const orario = order.scheduledTime ? `Orario: ${order.scheduledTime}` : "";
+
+if ((order as any).isKitchenCopy === true) {
+  text += "\x1B!\x38"; // testo grande
+}
+
+text += `${tipo} ${orario}\n`;
+
+if ((order as any).isKitchenCopy === true) {
+  text += "\x1B!\x00"; // torna normale
+}
 
   const legacyOrder = order as any;
   const customerName = order.customerName || legacyOrder.name;
@@ -147,8 +156,11 @@ if (isKitchen) {
   }
 
   text += "\n";
+  if ((order as any).isKitchenCopy === true) {
+  text += "ATTENZIONE RICALCOLA\n";
+} else {
   text += center("ATTENZIONE RICALCOLA");
-  text += "------------------------------------------------\n";
+}
 
   if (order.coperto !== undefined) {
     text += `\nCoperto €${order.coperto.toFixed(2)}\n`;
@@ -165,7 +177,11 @@ if (isKitchen) {
 
   // RICALCOLA IL TOTALE
   const totalStr = `Ricalcola il TOTALE €${order.total.toFixed(2)}`;
+  if ((order as any).isKitchenCopy === true) {
+  text += totalStr + "\n";
+} else {
   text += center(totalStr);
+}
 
   // SPAZIO EXTRA PER STRAPPO
   text += "\n\n\n\n";

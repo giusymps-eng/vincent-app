@@ -1,6 +1,7 @@
 import type { MenuItem } from "@/types";
 
 export const TRADIZIONALI: MenuItem[] = [
+  { id: "t-pizza-pane", name: "Pizza Pane", description: "Impasto pizza cotto al forno", price: 4.0, category: "tradizionali" },
   { id: "t-bianca", name: "Bianca", description: "Mozzarella, origano e olio", price: 5.0, category: "tradizionali" },
   { id: "t-marinara", name: "Marinara", description: "Pomodoro, aglio, origano e olio", price: 4.5, category: "tradizionali" },
   { id: "t-nutella", name: "Nutella", description: "Nutella, pistacchio e zucchero a velo", price: 7.0, category: "tradizionali" },
@@ -94,10 +95,10 @@ export const PANINI: MenuItem[] = [
 
 
 export const PANINAZZI: MenuItem[] = [
-  { id: "pz-manzo-classico", name: "Manzo Classico", description: "Carne di manzo siciliano (220g), pomodoro, insalata, olio extra vergine d'oliva, provola delle Madonie, ketchup e maionese", price: 6.5, category: "paninazzi" },
-  { id: "pz-manzo-bbq", name: "Manzo BBQ", description: "Carne di manzo siciliano (220g), insalata, cipolla in agrodolce, pomodoro, provola delle Madonie, guanciale croccante, salsa barbecue, ketchup e maionese", price: 7.5, category: "paninazzi" },
-  { id: "pz-asino", name: "Asino di Chiaramonte Gulfi", description: "Carne di asino di Chiaramonte Gulfi (220g), pomodoro, insalata mista, mozzarella di bufala, funghi saltati in padella, cipolla in agrodolce, salsa barbecue, maionese, pepe", price: 8.5, category: "paninazzi" },
-  { id: "pz-suino-nero", name: "Suino Nero", description: "Carne di suino nero (220g), pomodorino confit, cavolo verza, mozzarella di bufala, cipolla cruda, ketchup e maionese", price: 8.5, category: "paninazzi" },
+  { id: "pz-manzo-classico", name: "Manzo N.1", description: "Carne di manzo siciliano (220g), pomodoro, insalata, olio extra vergine d'oliva, provola delle Madonie, ketchup e maionese", price: 8.0, category: "paninazzi" },
+  { id: "pz-manzo-bbq", name: "Manzo N.2", description: "Carne di manzo siciliano (220g), insalata, cipolla in agrodolce, pomodoro, provola delle Madonie, guanciale croccante, salsa barbecue, ketchup e maionese", price: 9.0, category: "paninazzi" },
+  { id: "pz-asino", name: "Manzo N.3", description: "Carne di asino di Chiaramonte Gulfi (220g), pomodoro, insalata mista, mozzarella di bufala, funghi saltati in padella, cipolla in agrodolce, salsa barbecue, maionese, pepe", price: 10.0, category: "paninazzi" },
+  { id: "pz-suino-nero", name: "Manzo N.4", description: "Carne di suino nero (220g), pomodorino confit, cavolo verza, mozzarella di bufala, cipolla cruda, ketchup e maionese", price: 10.0, category: "paninazzi" },
 ];
 
 export const STUZZICHERIE: MenuItem[] = [
