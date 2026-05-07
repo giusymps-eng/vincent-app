@@ -150,17 +150,15 @@ if (isKitchen) {
     }
   }
 
-  if (order.notes) {
-    text += "\nNOTE AGGIUNTIVE:\n";
-    text += `${order.notes}\n`;
-  }
-
-  text += "\n";
-  if ((order as any).isKitchenCopy === true) {
-  text += "ATTENZIONE RICALCOLA\n";
-} else {
-  text += center("ATTENZIONE RICALCOLA");
+ if (order.notes) {
+  text += "\nNOTE AGGIUNTIVE:\n";
+  text += `${order.notes}\n`;
 }
+
+// SOLO SALA → stampa ricalcola, coperto, consegna, totale
+if (!(order as any).isKitchenCopy) {
+  text += "\n";
+  text += center("ATTENZIONE RICALCOLA");
 
   if (order.coperto !== undefined) {
     text += `\nCoperto €${order.coperto.toFixed(2)}\n`;
@@ -172,29 +170,26 @@ if (isKitchen) {
     text += `Consegna €${((order as any).deliveryCost as number).toFixed(2)}\n`;
   }
 
-
   text += "================================================\n";
 
-  // RICALCOLA IL TOTALE
   const totalStr = `Ricalcola il TOTALE €${order.total.toFixed(2)}`;
-  if ((order as any).isKitchenCopy === true) {
-  text += totalStr + "\n";
-} else {
   text += center(totalStr);
 }
 
-  // SPAZIO EXTRA PER STRAPPO
-  text += "\n\n\n\n";
-  // 🔥 TORNA AL TESTO NORMALE SE È COPIA CUCINA
-  if ((order as any).isKitchenCopy === true) {
-    text += "\x1B!\x00";
-}
-  return text;
+// SOLO CUCINA → niente ricalcola, niente totale, solo spazio per taglio
+if ((order as any).isKitchenCopy) {
+  text += "\n\n\n\n"; // spazio per taglio
 }
 
-// CENTRATURA TESTO
-function center(str: string) {
-  const totalWidth = 48;
-  const padding = Math.floor((totalWidth - str.length) / 2);
-  return " ".repeat(padding) + str + "\n";
+// SALA → spazio finale per strappo
+if (!(order as any).isKitchenCopy) {
+  text += "\n\n\n\n";
+}
+
+// RESET FONT
+if ((order as any).isKitchenCopy === true) {
+  text += "\x1B!\x00";
+}
+
+return text;
 }
