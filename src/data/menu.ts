@@ -129,7 +129,14 @@ export const CONTORNI: MenuItem[] = [
 export const BEVANDE: MenuItem[] = [
   { id: "b-acqua50", name: "Acqua N/F 50cl", price: 1.0, category: "bevande" },
   { id: "b-acqua100", name: "Acqua N/F 100cl", price: 2.0, category: "bevande" },
-  { id: "b-lattina", name: "Lattina 33cl", price: 2.0, category: "bevande" },
+  { id: "b-cocacola", name: "Coca Cola 33cl", price: 2.0, category: "bevande" },
+{ id: "b-cocacola-zero", name: "Coca Cola Zero 33cl", price: 2.0, category: "bevande" },
+{ id: "b-sprite", name: "Sprite 33cl", price: 2.0, category: "bevande" },
+{ id: "b-fanta", name: "Fanta 33cl", price: 2.0, category: "bevande" },
+
+{ id: "b-the-limone", name: "Thè al Limone 33cl", price: 2.5, category: "bevande" },
+{ id: "b-the-pesca", name: "Thè alla Pesca 33cl", price: 2.5, category: "bevande" },
+
 ];
 
 export const BIRRE: MenuItem[] = [
@@ -139,6 +146,7 @@ export const BIRRE: MenuItem[] = [
   { id: "bi-ceres", name: "Ceres 33cl", price: 3.5, category: "birre" },
   { id: "bi-becks", name: "Beck's 33cl", price: 2.0, category: "birre" },
   { id: "bi-corona", name: "Corona 33cl", price: 3.0, category: "birre" },
+  { id: "bi-paulaner", name: "Paulaner 50cl", price: 4.0, category: "birre" },
   { id: "bi-peronisg", name: "Peroni Senza Glutine 33cl", price: 3.0, category: "birre", glutenFree: true },
 ];
 
