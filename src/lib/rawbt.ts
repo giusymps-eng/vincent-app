@@ -1,17 +1,14 @@
 import type { Order } from "../types";
 
 /* ------------------------------------------------------------
-   FUNZIONE DI STAMPA — VERSIONE RAWBT-SAFE (DEFINITIVA)
+   FUNZIONE DI STAMPA — RAWBT-SAFE + GRAFICA STILE A
 ------------------------------------------------------------ */
 export async function sendOrderToPrinter(order: Order) {
-  // --- COPIA SALA ---
   const salaText = generateReceiptText(order);
 
-  // --- COPIA CUCINA ---
   const cucinaOrder = structuredClone(order);
   (cucinaOrder as any).isKitchenCopy = true;
 
-  // Azzeriamo i prezzi per la cucina
   const zero = (arr?: any[]) => arr?.forEach(i => i.price = 0);
   zero(cucinaOrder.pizzas);
   zero(cucinaOrder.panini);
@@ -24,14 +21,14 @@ export async function sendOrderToPrinter(order: Order) {
 
   const cucinaText = generateReceiptText(cucinaOrder);
 
-  // --- TESTO FINALE ---
   const finalText =
-    salaText + "\n\n\n" +
-    cucinaText + "\n\n\n\n{cut:full}";
+    salaText +
+    "\n\n\n" +
+    cucinaText +
+    "\n\n\n\n" +
+    "\x1DVA0"; // TAGLIO CARTA ESC/POS
 
-  // ------------------------------------------------------------
-  // 🔥 CODIFICA RAWBT-SAFE (RISOLVE IL PROBLEMA SU TUTTI I BROWSER)
-  // ------------------------------------------------------------
+  // Codifica RAWBT-SAFE
   const safeEncode = (str: string) =>
     encodeURIComponent(str)
       .replace(/%20/g, " ")
@@ -41,7 +38,6 @@ export async function sendOrderToPrinter(order: Order) {
   const encoded = safeEncode(finalText);
   const url = `rawbt:print?data=${encoded}`;
 
-  // --- INVIO ALLA STAMPANTE ---
   const iframe = document.createElement("iframe");
   iframe.style.display = "none";
   iframe.src = url;
@@ -53,12 +49,12 @@ export async function sendOrderToPrinter(order: Order) {
 }
 
 /* ------------------------------------------------------------
-   GENERAZIONE TESTO COMANDA (SALA + CUCINA)
+   GENERAZIONE TESTO — STILE A (PULITO, PROFESSIONALE)
 ------------------------------------------------------------ */
 function generateReceiptText(order: Order) {
   let text = "";
 
-  // LOGO
+  // HEADER
   text += "================================================\n";
   text += center("VINCENT'S PUB");
   text += "================================================\n\n";
@@ -72,7 +68,7 @@ function generateReceiptText(order: Order) {
   const orario = order.scheduledTime ? `Orario: ${order.scheduledTime}` : "";
 
   if ((order as any).isKitchenCopy) text += "\x1B!\x38";
-  text += `${tipo} ${orario}\n`;
+  text += `${tipo.padEnd(12)} ${orario}\n`;
   if ((order as any).isKitchenCopy) text += "\x1B!\x00";
 
   // DATI CLIENTE
@@ -84,13 +80,6 @@ function generateReceiptText(order: Order) {
   if (customerName) text += `Nome: ${customerName}\n`;
   if (customerPhone) text += `Tel: ${customerPhone}\n`;
   if (customerAddress) text += `Indirizzo: ${customerAddress}\n`;
-
-  // TAVOLO / ORARIO
-  if (order.type === "tavolo") {
-    text += `Tavolo: ${order.tableNumber || "?"}    Coperti: ${order.coperti || 1}\n`;
-  } else if (order.scheduledTime) {
-    text += `Orario: ${order.scheduledTime}\n`;
-  }
 
   if (order.status) text += `Stato: ${order.status}\n`;
 
@@ -139,34 +128,26 @@ function generateReceiptText(order: Order) {
 
   // SOLO SALA → totale
   if (!(order as any).isKitchenCopy) {
-    text += "\n";
+    text += "\n================================================\n";
     text += center("ATTENZIONE RICALCOLA");
 
-    if (order.coperto !== undefined) {
-      text += `\nCoperto €${order.coperto.toFixed(2)}\n`;
-    }
+    text += `Coperto €${order.coperto.toFixed(2)}\n`;
 
     if (order.deliveryFee !== undefined) {
       text += `Consegna €${order.deliveryFee.toFixed(2)}\n`;
-    } else if ((order as any).deliveryCost !== undefined) {
-      text += `Consegna €${((order as any).deliveryCost as number).toFixed(2)}\n`;
     }
 
     text += "================================================\n";
-    text += center(`Ricalcola il TOTALE €${order.total.toFixed(2)}`);
+    text += center(`TOTALE €${order.total.toFixed(2)}`);
   }
 
-  // SPAZIO FINALE
-  text += "\n\n\n\n";
-
-  // RESET FONT
-  if ((order as any).isKitchenCopy) text += "\x1B!\x00";
+  text += "\n\n";
 
   return text;
 }
 
 /* ------------------------------------------------------------
-   CENTRATURA TESTO
+   CENTRATURA
 ------------------------------------------------------------ */
 function center(value: string, width = 48) {
   const text = value || "";
