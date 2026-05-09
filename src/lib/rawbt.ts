@@ -6,9 +6,11 @@ import type { Order } from "../types";
 export async function sendOrderToPrinter(order: Order) {
   const salaText = generateReceiptText(order);
 
+  // Copia cucina
   const cucinaOrder = structuredClone(order);
   (cucinaOrder as any).isKitchenCopy = true;
 
+  // Rimuovi prezzi per cucina
   const zero = (arr?: any[]) => arr?.forEach(i => i.price = 0);
   zero(cucinaOrder.pizzas);
   zero(cucinaOrder.panini);
@@ -21,12 +23,15 @@ export async function sendOrderToPrinter(order: Order) {
 
   const cucinaText = generateReceiptText(cucinaOrder);
 
+  // Testo finale con separazione e reset
   const finalText =
     salaText +
-    "\n\n\n" +
+    "\n\n\n\n\n" +        // spazio extra
+    "\x1B@\n" +           // reset stampante
+    "\x1D!\x00\n" +       // reset font universale
     cucinaText +
-    "\n\n\n\n" +
-    "\x1DVA0"; // TAGLIO CARTA ESC/POS
+    "\n\n\n\n\n" +        // spazio finale
+    "{cut:full}";         // taglio compatibile RawBT
 
   // Codifica RAWBT-SAFE
   const safeEncode = (str: string) =>
@@ -67,9 +72,9 @@ function generateReceiptText(order: Order) {
   const tipo = order.type?.toUpperCase() || "ORDINE";
   const orario = order.scheduledTime ? `Orario: ${order.scheduledTime}` : "";
 
-  if ((order as any).isKitchenCopy) text += "\x1B!\x38";
+  if ((order as any).isKitchenCopy) text += "\x1D!\x11";   // FONT GRANDE
   text += `${tipo.padEnd(12)} ${orario}\n`;
-  if ((order as any).isKitchenCopy) text += "\x1B!\x00";
+  if ((order as any).isKitchenCopy) text += "\x1D!\x00";   // RESET FONT
 
   // DATI CLIENTE
   const legacy = order as any;
@@ -91,9 +96,9 @@ function generateReceiptText(order: Order) {
 
     const isKitchen = (order as any).isKitchenCopy;
 
-    if (isKitchen) text += "\x1B!\x38";
+    if (isKitchen) text += "\x1D!\x11";   // FONT GRANDE
     text += `\n${title}\n`;
-    if (isKitchen) text += "\x1B!\x00";
+    if (isKitchen) text += "\x1D!\x00";   // RESET FONT
 
     items.forEach((l) => {
       const qty = `${l.quantity}×`.padEnd(4);
