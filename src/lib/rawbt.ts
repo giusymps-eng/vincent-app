@@ -193,3 +193,15 @@ if ((order as any).isKitchenCopy === true) {
 
 return text;
 }
+
+function center(value: string, width = 48) {
+  const text = value || "";
+  if (text.length >= width) {
+    return text + "\n";
+  }
+
+  const padding = width - text.length;
+  const left = Math.floor(padding / 2);
+  const right = padding - left;
+  return " ".repeat(left) + text + " ".repeat(right) + "\n";
+}
