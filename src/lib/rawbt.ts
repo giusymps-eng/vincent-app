@@ -1,7 +1,7 @@
 import type { Order } from "../types";
 
 /* ------------------------------------------------------------
-   FUNZIONE DI STAMPA — RAWBT-SAFE + GRAFICA STILE A
+   FUNZIONE DI STAMPA — VERSIONE STABILE E COMPATIBILE
 ------------------------------------------------------------ */
 export async function sendOrderToPrinter(order: Order) {
   const salaText = generateReceiptText(order);
@@ -23,15 +23,16 @@ export async function sendOrderToPrinter(order: Order) {
 
   const cucinaText = generateReceiptText(cucinaOrder);
 
-  // Testo finale con separazione e reset
+  // Testo finale con separazione
   const finalText =
     salaText +
-    "\n\n\n\n\n" +        // spazio extra
-    "\x1B@\n" +           // reset stampante
-    "\x1D!\x00\n" +       // reset font universale
+    "\n\n" +
+    "================================================\n" +
+    center("COPIA CUCINA") +
+    "================================================\n\n" +
     cucinaText +
-    "\n\n\n\n\n" +        // spazio finale
-    "{cut:full}";         // taglio compatibile RawBT
+    "\n\n\n" +
+    "{cut:full}";
 
   // Codifica RAWBT-SAFE
   const safeEncode = (str: string) =>
@@ -54,7 +55,7 @@ export async function sendOrderToPrinter(order: Order) {
 }
 
 /* ------------------------------------------------------------
-   GENERAZIONE TESTO — STILE A (PULITO, PROFESSIONALE)
+   GENERAZIONE TESTO — STILE A (PULITO, COMPATIBILE)
 ------------------------------------------------------------ */
 function generateReceiptText(order: Order) {
   let text = "";
@@ -71,10 +72,7 @@ function generateReceiptText(order: Order) {
   // TIPO + ORARIO
   const tipo = order.type?.toUpperCase() || "ORDINE";
   const orario = order.scheduledTime ? `Orario: ${order.scheduledTime}` : "";
-
-  if ((order as any).isKitchenCopy) text += "\x1D!\x11";   // FONT GRANDE
   text += `${tipo.padEnd(12)} ${orario}\n`;
-  if ((order as any).isKitchenCopy) text += "\x1D!\x00";   // RESET FONT
 
   // DATI CLIENTE
   const legacy = order as any;
@@ -94,16 +92,14 @@ function generateReceiptText(order: Order) {
   const addLines = (title: string, items: any[]) => {
     if (!items || items.length === 0) return;
 
-    const isKitchen = (order as any).isKitchenCopy;
-
-    if (isKitchen) text += "\x1D!\x11";   // FONT GRANDE
     text += `\n${title}\n`;
-    if (isKitchen) text += "\x1D!\x00";   // RESET FONT
 
     items.forEach((l) => {
       const qty = `${l.quantity}×`.padEnd(4);
       const name = l.name.padEnd(28);
-      const price = isKitchen ? "" : (l.price ? `€${(l.price * l.quantity).toFixed(2)}` : "");
+      const price = (order as any).isKitchenCopy
+        ? ""
+        : (l.price ? `€${(l.price * l.quantity).toFixed(2)}` : "");
 
       text += `${qty}${name}${price.padStart(10)}\n`;
 
