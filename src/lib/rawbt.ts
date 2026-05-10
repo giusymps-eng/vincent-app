@@ -23,10 +23,12 @@ export async function sendOrderToPrinter(order: Order) {
 
   const cucinaText = generateReceiptText(cucinaOrder);
 
-  // Testo finale con separazione
+  // Testo finale con reset per Wi‑Fi
   const finalText =
     salaText +
-    "\n\n" +
+    "\n\n\n" +
+    "{cut:full}\n" +        // chiude la sala
+    "\x1B@\n" +             // reset stampante (fondamentale per Wi‑Fi)
     "================================================\n" +
     center("COPIA CUCINA") +
     "================================================\n\n" +
