@@ -1,37 +1,20 @@
 import type { Order } from "../types";
 
 /* ------------------------------------------------------------
-   STAMPA SALA + AVVIO STAMPA CUCINA
+   STAMPA SALA + CUCINA (UNICO JOB)
 ------------------------------------------------------------ */
 export async function sendOrderToPrinter(order: Order) {
+  /* -------------------------
+     1) GENERA TESTO SALA
+  ------------------------- */
   const salaText = generateReceiptSala(order);
 
-  // 1) STAMPA SALA
-  await rawbtPrint(salaText);
-
-  // 2) PAUSA per permettere alla stampante Wi‑Fi di chiudere il buffer
-  await new Promise(r => setTimeout(r, 1200));
-
-  // 3) RESET HARDWARE (importantissimo per Wi‑Fi)
-  await rawbtPrint("\x1B@\n");
-
-  // 4) PAUSA dopo reset
-  await new Promise(r => setTimeout(r, 600));
-
-  // 5) STAMPA CUCINA
-  await sendKitchenCopy(order);
-
-  return true;
-}
-
-/* ------------------------------------------------------------
-   STAMPA CUCINA (SEPARATA)
------------------------------------------------------------- */
-async function sendKitchenCopy(order: Order) {
+  /* -------------------------
+     2) PREPARA COPIA CUCINA
+  ------------------------- */
   const cucinaOrder = structuredClone(order);
   (cucinaOrder as any).isKitchenCopy = true;
 
-  // Rimuovi prezzi
   const zero = (arr?: any[]) => arr?.forEach(i => i.price = 0);
   zero(cucinaOrder.pizzas);
   zero(cucinaOrder.panini);
@@ -43,11 +26,32 @@ async function sendKitchenCopy(order: Order) {
   cucinaOrder.total = 0;
 
   const cucinaText = generateReceiptCucina(cucinaOrder);
-  await rawbtPrint(cucinaText);
+
+  /* ------------------------------------------------------------
+     🔥 3) UNICO JOB COMPATIBILE CON LA STAMPANTE
+        - reset iniziale
+        - SALA (già con {cut:full})
+        - reset + spazio
+        - CUCINA (già con {cut:full})
+        - reset finale
+  ------------------------------------------------------------ */
+  const job =
+    "\x1B@\n" +          // reset iniziale
+    salaText + "\n" +    // comanda SALA
+    "\x1B@\n\n" +        // reset + spazio
+    cucinaText + "\n" +  // comanda CUCINA
+    "\x1B@\n";           // reset finale
+
+  /* -------------------------
+     4) INVIO UNICO A RAWBT
+  ------------------------- */
+  await rawbtPrint(job);
+
+  return true;
 }
 
 /* ------------------------------------------------------------
-   FUNZIONE DI INVIO A RAWBT
+   FUNZIONE DI INVIO A RAWBT (INVARIATA)
 ------------------------------------------------------------ */
 async function rawbtPrint(text: string) {
   const safeEncode = (str: string) =>
@@ -73,7 +77,7 @@ async function rawbtPrint(text: string) {
 }
 
 /* ------------------------------------------------------------
-   GENERAZIONE TESTO — SALA
+   GENERAZIONE TESTO — SALA (INVARIATA)
 ------------------------------------------------------------ */
 function generateReceiptSala(order: Order) {
   let text = "";
@@ -120,7 +124,7 @@ function generateReceiptSala(order: Order) {
 }
 
 /* ------------------------------------------------------------
-   GENERAZIONE TESTO — CUCINA
+   GENERAZIONE TESTO — CUCINA (INVARIATA)
 ------------------------------------------------------------ */
 function generateReceiptCucina(order: Order) {
   let text = "";
@@ -159,7 +163,7 @@ function generateReceiptCucina(order: Order) {
 }
 
 /* ------------------------------------------------------------
-   SEZIONI
+   SEZIONI (INVARIATE)
 ------------------------------------------------------------ */
 function buildSections(order: Order, isKitchen: boolean) {
   let text = "";
@@ -202,7 +206,7 @@ function buildSections(order: Order, isKitchen: boolean) {
 }
 
 /* ------------------------------------------------------------
-   CENTRATURA
+   CENTRATURA (INVARIATA)
 ------------------------------------------------------------ */
 function center(value: string, width = 48) {
   const text = value || "";
