@@ -72,7 +72,15 @@ function generateReceiptText(order: Order) {
   // TIPO + ORARIO
   const tipo = order.type?.toUpperCase() || "ORDINE";
   const orario = order.scheduledTime ? `Orario: ${order.scheduledTime}` : "";
-  text += `${tipo.padEnd(12)} ${orario}\n`;
+
+  // ORARIO GRANDE SOLO IN CUCINA
+  if ((order as any).isKitchenCopy) {
+    text += "\n================================================\n";
+    text += center(`${tipo} — ${orario}`);
+    text += "================================================\n\n";
+  } else {
+    text += `${tipo.padEnd(12)} ${orario}\n`;
+  }
 
   // DATI CLIENTE
   const legacy = order as any;
@@ -140,6 +148,11 @@ function generateReceiptText(order: Order) {
 
     text += "================================================\n";
     text += center(`TOTALE €${order.total.toFixed(2)}`);
+  }
+
+  // CUCINA → NON STAMPA TOTALE
+  if ((order as any).isKitchenCopy) {
+    text += "\n";
   }
 
   text += "\n\n";
