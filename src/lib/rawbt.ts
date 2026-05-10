@@ -1,7 +1,7 @@
 import type { Order } from "../types";
 
 /* ------------------------------------------------------------
-   STAMPA SALA + CUCINA (UNICO JOB)
+   STAMPA SALA + CUCINA (UNICO JOB COMPATIBILE RAWBT)
 ------------------------------------------------------------ */
 export async function sendOrderToPrinter(order: Order) {
   /* -------------------------
