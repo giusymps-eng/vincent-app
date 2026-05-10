@@ -1,13 +1,24 @@
 import type { Order } from "../types";
 
 /* ------------------------------------------------------------
-   STAMPA SALA
+   STAMPA SALA + AVVIO STAMPA CUCINA
 ------------------------------------------------------------ */
 export async function sendOrderToPrinter(order: Order) {
   const salaText = generateReceiptSala(order);
+
+  // 1) STAMPA SALA
   await rawbtPrint(salaText);
 
-  // Dopo la sala → stampa cucina
+  // 2) PAUSA per permettere alla stampante Wi‑Fi di chiudere il buffer
+  await new Promise(r => setTimeout(r, 1200));
+
+  // 3) RESET HARDWARE (importantissimo per Wi‑Fi)
+  await rawbtPrint("\x1B@\n");
+
+  // 4) PAUSA dopo reset
+  await new Promise(r => setTimeout(r, 600));
+
+  // 5) STAMPA CUCINA
   await sendKitchenCopy(order);
 
   return true;
@@ -90,23 +101,7 @@ function generateReceiptSala(order: Order) {
 
   text += "------------------------------------------------\n";
 
-  addLines(text, "PIZZE", order.pizzas);
-  addLines(text, "PANINI", order.panini);
-  addLines(text, "STUZZICHERIE", order.contorni);
-  addLines(text, "BEVANDE", order.bevande);
-
-  if (order.pizzas.length > 0) {
-    if (order.cutPizzas || (order as any).pizzeTagliate) {
-      text += "\n✓ PIZZE TAGLIATE\n";
-    } else {
-      text += "\n□ Pizze NON tagliate\n";
-    }
-  }
-
-  if (order.notes) {
-    text += "\nNOTE AGGIUNTIVE:\n";
-    text += `${order.notes}\n`;
-  }
+  text += buildSections(order, false);
 
   text += "\n================================================\n";
   text += center("ATTENZIONE RICALCOLA");
@@ -156,10 +151,39 @@ function generateReceiptCucina(order: Order) {
 
   text += "------------------------------------------------\n";
 
-  addLines(text, "PIZZE", order.pizzas);
-  addLines(text, "PANINI", order.panini);
-  addLines(text, "STUZZICHERIE", order.contorni);
-  addLines(text, "BEVANDE", order.bevande);
+  text += buildSections(order, true);
+
+  text += "\n\n{cut:full}\n";
+
+  return text;
+}
+
+/* ------------------------------------------------------------
+   SEZIONI
+------------------------------------------------------------ */
+function buildSections(order: Order, isKitchen: boolean) {
+  let text = "";
+
+  const add = (title: string, items: any[]) => {
+    if (!items || items.length === 0) return;
+
+    text += `\n${title}\n`;
+
+    items.forEach((l) => {
+      const qty = `${l.quantity}×`.padEnd(4);
+      const name = l.name.padEnd(28);
+      const price = isKitchen ? "" : (l.price ? `€${(l.price * l.quantity).toFixed(2)}` : "");
+
+      text += `${qty}${name}${price}\n`;
+
+      if (l.note) text += `  Note: ${l.note}\n`;
+    });
+  };
+
+  add("PIZZE", order.pizzas);
+  add("PANINI", order.panini);
+  add("STUZZICHERIE", order.contorni);
+  add("BEVANDE", order.bevande);
 
   if (order.pizzas.length > 0) {
     if (order.cutPizzas || (order as any).pizzeTagliate) {
@@ -174,26 +198,7 @@ function generateReceiptCucina(order: Order) {
     text += `${order.notes}\n`;
   }
 
-  text += "\n\n{cut:full}\n";
-
   return text;
-}
-
-/* ------------------------------------------------------------
-   FUNZIONE SEZIONI
------------------------------------------------------------- */
-function addLines(text: string, title: string, items: any[]) {
-  if (!items || items.length === 0) return;
-
-  text += `\n${title}\n`;
-
-  items.forEach((l) => {
-    const qty = `${l.quantity}×`.padEnd(4);
-    const name = l.name.padEnd(28);
-    text += `${qty}${name}\n`;
-
-    if (l.note) text += `  Note: ${l.note}\n`;
-  });
 }
 
 /* ------------------------------------------------------------
