@@ -4,6 +4,7 @@ const ESC = "\x1B";
 const INIT = ESC + "@";
 const FONT_LARGE = ESC + "!\x38";
 const FONT_NORMAL = ESC + "!\x00";
+const ALIGN_LEFT = ESC + "a" + "\x00"; // allineamento sinistra
 const FEED = ESC + "d" + "\x05";
 
 /* ------------------------------------------------------------
@@ -14,6 +15,7 @@ export async function sendOrderToPrinter(order: Order) {
 
   const job =
     INIT +
+    ALIGN_LEFT +
     FONT_LARGE +
     "VINCENT'S PUB\n" +
     FONT_NORMAL +
@@ -57,6 +59,7 @@ async function rawbtPrint(text: string) {
 function generateKitchenOnly(order: Order) {
   let text = "";
 
+  text += ALIGN_LEFT;
   text += "========================================\n";
   text += `COMANDA #${order.progressiveNumber}\n`;
   text += `${order.type?.toUpperCase() || "ORDINE"}\n`;
