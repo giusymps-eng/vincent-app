@@ -3,7 +3,6 @@ import type { Order } from "../types";
 const ESC = "\x1B";
 const INIT = ESC + "@";
 const FONT_LARGE = ESC + "!\x38";
-const FONT_NORMAL = ESC + "!\x00";
 const FEED = ESC + "d" + "\x05"; // avanza di 5 righe reali
 
 /* ------------------------------------------------------------
@@ -17,7 +16,6 @@ export async function sendOrderToPrinter(order: Order) {
     FONT_LARGE +
     text +
     FEED +
-    FONT_NORMAL +
     "\n{cut:full}";
 
   await rawbtPrint(job);
