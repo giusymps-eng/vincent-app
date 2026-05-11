@@ -1,65 +1,49 @@
 import type { Order } from "../types";
 
+const ESC = "\x1B";
+const INIT_PRINTER = ESC + "@";
+const FONT_NORMAL = ESC + "!\x00";
+const FONT_LARGE = ESC + "!\x38";
+
 /* ------------------------------------------------------------
-   STAMPA SALA + CUCINA (UNICO JOB COMPATIBILE RAWBT)
+   STAMPA ORDINE: copia sala + copia cucina
 ------------------------------------------------------------ */
 export async function sendOrderToPrinter(order: Order) {
-  /* -------------------------
-     1) GENERA TESTO SALA
-  ------------------------- */
-  const salaText = generateReceiptSala(order);
+  const salaText = generateReceiptText(order, false);
 
-  /* -------------------------
-     2) PREPARA COPIA CUCINA
-  ------------------------- */
   const cucinaOrder = structuredClone(order);
   (cucinaOrder as any).isKitchenCopy = true;
-
-  const zero = (arr?: any[]) => arr?.forEach(i => i.price = 0);
-  zero(cucinaOrder.pizzas);
-  zero(cucinaOrder.panini);
-  zero(cucinaOrder.contorni);
-  zero(cucinaOrder.bevande);
-
+  zeroPrices(cucinaOrder);
   cucinaOrder.coperto = 0;
   cucinaOrder.deliveryFee = 0;
   cucinaOrder.total = 0;
 
-  const cucinaText = generateReceiptCucina(cucinaOrder);
+  const cucinaText = generateReceiptText(cucinaOrder, true);
 
-<<<<<<< HEAD
-  // --- TESTO FINALE ---
-  const finalText =
-    salaText + "\n\n\n\n\n" +
-    "\x1B!\x00" +
-    cucinaText + "\n\n\n\n{cut:full}";
-=======
-  /* ------------------------------------------------------------
-     🔥 3) UNICO JOB COMPATIBILE CON LA STAMPANTE
-        - reset iniziale
-        - SALA (già con {cut:full})
-        - reset + spazio
-        - CUCINA (già con {cut:full})
-        - reset finale
-  ------------------------------------------------------------ */
   const job =
-    "\x1B@\n" +          // reset iniziale
-    salaText + "\n" +    // comanda SALA
-    "\x1B@\n\n" +        // reset + spazio
-    cucinaText + "\n" +  // comanda CUCINA
-    "\x1B@\n";           // reset finale
->>>>>>> 12bce73d162f19eb67f5ee1befd3c3b7085151cd
+    INIT_PRINTER +
+    salaText +
+    "\n\n\n" +
+    INIT_PRINTER +
+    cucinaText +
+    "\n{cut:full}";
 
-  /* -------------------------
-     4) INVIO UNICO A RAWBT
-  ------------------------- */
   await rawbtPrint(job);
-
   return true;
 }
 
+function zeroPrices(order: Order) {
+  const zero = (items?: Array<{ price: number }>) =>
+    items?.forEach(item => item.price = 0);
+
+  zero(order.pizzas);
+  zero(order.panini);
+  zero(order.contorni);
+  zero(order.bevande);
+}
+
 /* ------------------------------------------------------------
-   FUNZIONE DI INVIO A RAWBT (INVARIATA)
+   INVIO RAWBT
 ------------------------------------------------------------ */
 async function rawbtPrint(text: string) {
   const safeEncode = (str: string) =>
@@ -85,71 +69,29 @@ async function rawbtPrint(text: string) {
 }
 
 /* ------------------------------------------------------------
-   GENERAZIONE TESTO — SALA (INVARIATA)
+   GENERA TESTO COMANDA (SALA / CUCINA)
 ------------------------------------------------------------ */
-function generateReceiptSala(order: Order) {
+function generateReceiptText(order: Order, isKitchen: boolean) {
   let text = "";
 
   text += "================================================\n";
   text += center("VINCENT'S PUB");
   text += "================================================\n\n";
 
-  text += center(`COMANDA #${order.progressiveNumber}`);
-  text += "------------------------------------------------\n";
-
-  const tipo = order.type?.toUpperCase() || "ORDINE";
-  const orario = order.scheduledTime ? `Orario: ${order.scheduledTime}` : "";
-  text += `${tipo.padEnd(12)} ${orario}\n`;
-
-  const legacy = order as any;
-  const customerName = order.customerName || legacy.name;
-  const customerPhone = order.customerPhone || legacy.phone;
-  const customerAddress = order.customerAddress || legacy.address;
-
-  if (customerName) text += `Nome: ${customerName}\n`;
-  if (customerPhone) text += `Tel: ${customerPhone}\n`;
-  if (customerAddress) text += `Indirizzo: ${customerAddress}\n`;
-  if (order.status) text += `Stato: ${order.status}\n`;
-
-  text += "------------------------------------------------\n";
-
-  text += buildSections(order, false);
-
-  text += "\n================================================\n";
-  text += center("ATTENZIONE RICALCOLA");
-  text += `Coperto €${order.coperto.toFixed(2)}\n`;
-
-  if (order.deliveryFee !== undefined) {
-    text += `Consegna €${order.deliveryFee.toFixed(2)}\n`;
+  if (isKitchen) {
+    text += FONT_LARGE;
+    text += center(`COMANDA #${order.progressiveNumber}`);
+    text += center("CUCINA");
+    text += FONT_NORMAL;
+  } else {
+    text += center(`COMANDA #${order.progressiveNumber}`);
   }
 
-  text += "================================================\n";
-  text += center(`TOTALE €${order.total.toFixed(2)}`);
-
-  text += "\n\n{cut:full}\n";
-
-  return text;
-}
-
-/* ------------------------------------------------------------
-   GENERAZIONE TESTO — CUCINA (INVARIATA)
------------------------------------------------------------- */
-function generateReceiptCucina(order: Order) {
-  let text = "";
-
-  text += "================================================\n";
-  text += center("VINCENT'S PUB");
-  text += "================================================\n\n";
-
-  text += center(`COMANDA #${order.progressiveNumber}`);
   text += "------------------------------------------------\n";
 
   const tipo = order.type?.toUpperCase() || "ORDINE";
   const orario = order.scheduledTime ? `Orario: ${order.scheduledTime}` : "";
-
-  text += "\n================================================\n";
-  text += center(`${tipo} — ${orario}`);
-  text += "================================================\n\n";
+  text += `${tipo.padEnd(12)} ${orario}`.trim() + "\n";
 
   const legacy = order as any;
   const customerName = order.customerName || legacy.name;
@@ -163,46 +105,53 @@ function generateReceiptCucina(order: Order) {
 
   text += "------------------------------------------------\n";
 
-  text += buildSections(order, true);
+  text += buildSections(order, isKitchen);
 
-  text += "\n\n{cut:full}\n";
+  if (!isKitchen) {
+    text += "\n================================================\n";
+    text += center("ATTENZIONE RICALCOLA");
+    if (order.coperto !== undefined) {
+      text += `Coperto €${order.coperto.toFixed(2)}\n`;
+    }
+    if (order.deliveryFee !== undefined) {
+      text += `Consegna €${order.deliveryFee.toFixed(2)}\n`;
+    }
+    text += "================================================\n";
+    text += center(`TOTALE €${order.total.toFixed(2)}`);
+  }
 
+  text += "\n";
   return text;
 }
 
 /* ------------------------------------------------------------
-   SEZIONI (INVARIATE)
+   SEZIONI COMANDA
 ------------------------------------------------------------ */
 function buildSections(order: Order, isKitchen: boolean) {
   let text = "";
 
-  const add = (title: string, items: any[]) => {
+  const addSection = (title: string, items: Array<{ name: string; quantity: number; price: number; note?: string; }>) => {
     if (!items || items.length === 0) return;
 
     text += `\n${title}\n`;
 
-    items.forEach((l) => {
-      const qty = `${l.quantity}×`.padEnd(4);
-      const name = l.name.padEnd(28);
-      const price = isKitchen ? "" : (l.price ? `€${(l.price * l.quantity).toFixed(2)}` : "");
-
-      text += `${qty}${name}${price}\n`;
-
-      if (l.note) text += `  Note: ${l.note}\n`;
+    items.forEach(item => {
+      const qty = `${item.quantity}×`.padEnd(4);
+      const name = item.name.padEnd(28);
+      const priceText = isKitchen ? "" : item.price ? `€${(item.price * item.quantity).toFixed(2)}` : "";
+      text += `${qty}${name}${priceText.padStart(10)}\n`;
+      if (item.note) text += `  Note: ${item.note}\n`;
     });
   };
 
-  add("PIZZE", order.pizzas);
-  add("PANINI", order.panini);
-  add("STUZZICHERIE", order.contorni);
-  add("BEVANDE", order.bevande);
+  addSection("PIZZE", order.pizzas);
+  addSection("PANINI", order.panini);
+  addSection("STUZZICHERIE", order.contorni);
+  addSection("BEVANDE", order.bevande);
 
   if (order.pizzas.length > 0) {
-    if (order.cutPizzas || (order as any).pizzeTagliate) {
-      text += "\n✓ PIZZE TAGLIATE\n";
-    } else {
-      text += "\n□ Pizze NON tagliate\n";
-    }
+    text += "\n";
+    text += order.cutPizzas || (order as any).pizzeTagliate ? "✓ PIZZE TAGLIATE\n" : "□ Pizze NON tagliate\n";
   }
 
   if (order.notes) {
@@ -214,7 +163,7 @@ function buildSections(order: Order, isKitchen: boolean) {
 }
 
 /* ------------------------------------------------------------
-   CENTRATURA (INVARIATA)
+   FUNZIONE DI CENTRATURA
 ------------------------------------------------------------ */
 function center(value: string, width = 48) {
   const text = value || "";
