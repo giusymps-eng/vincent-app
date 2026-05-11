@@ -1,11 +1,11 @@
 import type { Order } from "../types";
 
 /* ------------------------------------------------------------
-   SIMULAZIONE RAWBT → serve solo per abilitare il pulsante
+   SIMULAZIONE RAWBT → abilita il pulsante STAMPA
 ------------------------------------------------------------ */
 // @ts-ignore
 window.RawBT = {
-  print: () => true
+  print: (data: string) => rawbtPrint(data)
 };
 
 /* ------------------------------------------------------------
@@ -34,36 +34,18 @@ export async function sendOrderToPrinter(order: Order) {
     FEED +
     "\x1D\x56\x00"; // CUT
 
-  await rawbtPrint(job);
+  await window.RawBT.print(job);
   return true;
 }
 
 /* ------------------------------------------------------------
-   RAWBT COMPATIBILITY WRAPPER → stampa via WiFi
+   STAMPA VIA SERVER RAWBT (ANDROID + PC)
 ------------------------------------------------------------ */
 async function rawbtPrint(data: string) {
-  const ip = "192.168.1.130"; // <-- CAMBIA QUESTO CON L'IP DELLA TUA STAMPANTE
-  const port = 9100;
-
-  return new Promise((resolve, reject) => {
-    try {
-      // @ts-ignore (plugin Android che espone window.Socket)
-      const socket = new window.Socket();
-
-      socket.connect(
-        port,
-        ip,
-        () => {
-          socket.write(data);
-          socket.close();
-          resolve(true);
-        }
-      );
-
-      socket.onError((err: any) => reject(err));
-    } catch (e) {
-      reject(e);
-    }
+  return fetch("http://127.0.0.1:8080/print", {
+    method: "POST",
+    headers: { "Content-Type": "text/plain" },
+    body: data
   });
 }
 
