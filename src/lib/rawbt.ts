@@ -34,7 +34,7 @@ export async function sendOrderToPrinter(order: Order) {
    STAMPA VIA WIFI (MUNBYN COMPATIBILE)
 ------------------------------------------------------------ */
 async function wifiPrint(data: string) {
-  const ip = "192.168.1.123"; // <-- METTI QUI L'IP DELLA TUA STAMPANTE
+  const ip = "192.168.1.130"; // <-- METTI QUI L'IP DELLA TUA STAMPANTE
   const port = 9100;
 
   return new Promise((resolve, reject) => {
