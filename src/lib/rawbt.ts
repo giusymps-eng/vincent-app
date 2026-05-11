@@ -1,14 +1,17 @@
 import type { Order } from "../types";
 
+/* ------------------------------------------------------------
+   ESC/POS CONSTANTS
+------------------------------------------------------------ */
 const ESC = "\x1B";
 const INIT = ESC + "@";
 const FONT_LARGE = ESC + "!\x38";
 const FONT_NORMAL = ESC + "!\x00";
-const ALIGN_LEFT = ESC + "a" + "\x00"; // allineamento sinistra
+const ALIGN_LEFT = ESC + "a" + "\x00";
 const FEED = ESC + "d" + "\x05";
 
 /* ------------------------------------------------------------
-   STAMPA COMANDA UNICA (CUCINA)
+   STAMPA COMANDA UNICA
 ------------------------------------------------------------ */
 export async function sendOrderToPrinter(order: Order) {
   const text = generateKitchenOnly(order);
@@ -21,36 +24,39 @@ export async function sendOrderToPrinter(order: Order) {
     FONT_NORMAL +
     text +
     FEED +
-    "\n{cut:full}";
+    "\x1D\x56\x00"; // CUT
 
-  await rawbtPrint(job);
+  await wifiPrint(job);
   return true;
 }
 
 /* ------------------------------------------------------------
-   INVIO RAWBT
+   STAMPA VIA WIFI (MUNBYN COMPATIBILE)
 ------------------------------------------------------------ */
-async function rawbtPrint(text: string) {
-  const safeEncode = (str: string) =>
-    encodeURIComponent(str)
-      .replace(/%20/g, " ")
-      .replace(/%0A/g, "\n")
-      .replace(/%1B/g, "\x1B");
+async function wifiPrint(data: string) {
+  const ip = "192.168.1.123"; // <-- METTI QUI L'IP DELLA TUA STAMPANTE
+  const port = 9100;
 
-  const encoded = safeEncode(text);
-  const url = `rawbt:print?data=${encoded}`;
+  return new Promise((resolve, reject) => {
+    try {
+      // @ts-ignore
+      const socket = new window.Socket();
 
-  const iframe = document.createElement("iframe");
-  iframe.style.display = "none";
-  iframe.src = url;
-  document.body.appendChild(iframe);
+      socket.connect(
+        port,
+        ip,
+        () => {
+          socket.write(data);
+          socket.close();
+          resolve(true);
+        }
+      );
 
-  return new Promise(resolve =>
-    setTimeout(() => {
-      iframe.remove();
-      resolve(true);
-    }, 800)
-  );
+      socket.onError((err: any) => reject(err));
+    } catch (e) {
+      reject(e);
+    }
+  });
 }
 
 /* ------------------------------------------------------------
@@ -59,7 +65,6 @@ async function rawbtPrint(text: string) {
 function generateKitchenOnly(order: Order) {
   let text = "";
 
-  text += ALIGN_LEFT;
   text += "========================================\n";
   text += `COMANDA #${order.progressiveNumber}\n`;
   text += `${order.type?.toUpperCase() || "ORDINE"}\n`;
