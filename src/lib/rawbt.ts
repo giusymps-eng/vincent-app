@@ -11,7 +11,7 @@ const ALIGN_LEFT = ESC + "a" + "\x00";
 const FEED = ESC + "d" + "\x05";
 
 /* ------------------------------------------------------------
-   STAMPA COMANDA UNICA
+   STAMPA COMANDA UNICA (CUCINA)
 ------------------------------------------------------------ */
 export async function sendOrderToPrinter(order: Order) {
   const text = generateKitchenOnly(order);
@@ -26,20 +26,20 @@ export async function sendOrderToPrinter(order: Order) {
     FEED +
     "\x1D\x56\x00"; // CUT
 
-  await wifiPrint(job);
+  await rawbtPrint(job);
   return true;
 }
 
 /* ------------------------------------------------------------
-   STAMPA VIA WIFI (MUNBYN COMPATIBILE)
+   RAWBT COMPATIBILITY WRAPPER → stampa via WiFi
 ------------------------------------------------------------ */
-async function wifiPrint(data: string) {
-  const ip = "192.168.1.130"; // <-- METTI QUI L'IP DELLA TUA STAMPANTE
+async function rawbtPrint(data: string) {
+  const ip = "192.168.1.123"; // <-- METTI QUI L'IP DELLA TUA STAMPANTE
   const port = 9100;
 
   return new Promise((resolve, reject) => {
     try {
-      // @ts-ignore
+      // @ts-ignore (plugin Android che espone window.Socket)
       const socket = new window.Socket();
 
       socket.connect(
@@ -110,7 +110,10 @@ function generateKitchenOnly(order: Order) {
 function buildSections(order: Order) {
   let text = "";
 
-  const addSection = (title: string, items: Array<{ name: string; quantity: number; note?: string }>) => {
+  const addSection = (
+    title: string,
+    items: Array<{ name: string; quantity: number; note?: string }>
+  ) => {
     if (!items || items.length === 0) return;
 
     text += `\n${title}\n`;
