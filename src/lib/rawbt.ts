@@ -1,4 +1,8 @@
-// Forza RawBT a esistere su Android
+import type { Order } from "../types";
+
+/* ------------------------------------------------------------
+   SIMULAZIONE RAWBT → abilita il pulsante STAMPA
+------------------------------------------------------------ */
 // @ts-ignore
 if (typeof window.RawBT === "undefined") {
   window.RawBT = {
@@ -6,16 +10,6 @@ if (typeof window.RawBT === "undefined") {
     ready: true
   };
 }
-
-import type { Order } from "../types";
-
-/* ------------------------------------------------------------
-   SIMULAZIONE RAWBT → abilita il pulsante STAMPA
------------------------------------------------------------- */
-// @ts-ignore
-window.RawBT = {
-  print: (data: string) => rawbtPrint(data)
-};
 
 /* ------------------------------------------------------------
    ESC/POS CONSTANTS
@@ -48,13 +42,24 @@ export async function sendOrderToPrinter(order: Order) {
 }
 
 /* ------------------------------------------------------------
-   STAMPA VIA SERVER RAWBT (ANDROID + PC)
+   STAMPA VIA WEBSOCKET (SERVER RAWBT)
 ------------------------------------------------------------ */
 async function rawbtPrint(data: string) {
-  return fetch("http://127.0.0.1:8080/print", {
-    method: "POST",
-    headers: { "Content-Type": "text/plain" },
-    body: data
+  return new Promise((resolve, reject) => {
+    try {
+      const socket = new WebSocket("ws://127.0.0.1:40213");
+
+      socket.onopen = () => {
+        // Invia i dati ESC/POS al server RawBT
+        socket.send(JSON.stringify({ type: "print", data }));
+        socket.close();
+        resolve(true);
+      };
+
+      socket.onerror = (err) => reject(err);
+    } catch (e) {
+      reject(e);
+    }
   });
 }
 
