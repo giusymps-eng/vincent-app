@@ -3,7 +3,8 @@ import type { Order } from "../types";
 const ESC = "\x1B";
 const INIT = ESC + "@";
 const FONT_LARGE = ESC + "!\x38";
-const FEED = ESC + "d" + "\x05"; // avanza di 5 righe reali
+const FONT_NORMAL = ESC + "!\x00";
+const FEED = ESC + "d" + "\x05";
 
 /* ------------------------------------------------------------
    STAMPA COMANDA UNICA (CUCINA)
@@ -14,6 +15,8 @@ export async function sendOrderToPrinter(order: Order) {
   const job =
     INIT +
     FONT_LARGE +
+    "VINCENT'S PUB\n" +
+    FONT_NORMAL +
     text +
     FEED +
     "\n{cut:full}";
@@ -55,9 +58,6 @@ function generateKitchenOnly(order: Order) {
   let text = "";
 
   text += "========================================\n";
-  text += "VINCENT'S PUB\n";
-  text += "========================================\n\n";
-
   text += `COMANDA #${order.progressiveNumber}\n`;
   text += `${order.type?.toUpperCase() || "ORDINE"}\n`;
 
@@ -65,7 +65,7 @@ function generateKitchenOnly(order: Order) {
     text += `ORARIO: ${order.scheduledTime}\n`;
   }
 
-  text += "\n----------------------------------------\n";
+  text += "----------------------------------------\n";
 
   const legacy = order as any;
   const customerName = order.customerName || legacy.name;
