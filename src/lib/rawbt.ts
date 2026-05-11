@@ -4,9 +4,10 @@ const ESC = "\x1B";
 const INIT = ESC + "@";
 const FONT_LARGE = ESC + "!\x38";
 const FONT_NORMAL = ESC + "!\x00";
+const FEED = ESC + "d" + "\x05"; // avanza di 5 righe reali
 
 /* ------------------------------------------------------------
-   STAMPA COMANDA UNICA (solo cucina)
+   STAMPA COMANDA UNICA (CUCINA)
 ------------------------------------------------------------ */
 export async function sendOrderToPrinter(order: Order) {
   const text = generateKitchenOnly(order);
@@ -15,6 +16,7 @@ export async function sendOrderToPrinter(order: Order) {
     INIT +
     FONT_LARGE +
     text +
+    FEED +
     FONT_NORMAL +
     "\n{cut:full}";
 
@@ -23,7 +25,7 @@ export async function sendOrderToPrinter(order: Order) {
 }
 
 /* ------------------------------------------------------------
-   RAWBT
+   INVIO RAWBT
 ------------------------------------------------------------ */
 async function rawbtPrint(text: string) {
   const safeEncode = (str: string) =>
@@ -55,14 +57,14 @@ function generateKitchenOnly(order: Order) {
   let text = "";
 
   text += "========================================\n";
-  text += center("VINCENT'S PUB");
+  text += "VINCENT'S PUB\n";
   text += "========================================\n\n";
 
-  text += center(`COMANDA #${order.progressiveNumber}`);
-  text += center(order.type?.toUpperCase() || "ORDINE");
+  text += `COMANDA #${order.progressiveNumber}\n`;
+  text += `${order.type?.toUpperCase() || "ORDINE"}\n`;
 
   if (order.scheduledTime) {
-    text += center(`ORARIO: ${order.scheduledTime}`);
+    text += `ORARIO: ${order.scheduledTime}\n`;
   }
 
   text += "\n----------------------------------------\n";
@@ -108,9 +110,7 @@ function buildSections(order: Order) {
     text += `\n${title}\n`;
 
     items.forEach(item => {
-      const qty = `${item.quantity}×`.padEnd(4);
-      const name = item.name;
-      text += `${qty}${name}\n`;
+      text += `${item.quantity}× ${item.name}\n`;
       if (item.note) text += `  Note: ${item.note}\n`;
     });
   };
@@ -121,18 +121,4 @@ function buildSections(order: Order) {
   addSection("BEVANDE", order.bevande);
 
   return text;
-}
-
-/* ------------------------------------------------------------
-   CENTRARE TESTO
------------------------------------------------------------- */
-function center(value: string, width = 40) {
-  const text = value || "";
-  if (text.length >= width) return text + "\n";
-
-  const padding = width - text.length;
-  const left = Math.floor(padding / 2);
-  const right = padding - left;
-
-  return " ".repeat(left) + text + " ".repeat(right) + "\n";
 }
