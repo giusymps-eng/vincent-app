@@ -1,15 +1,13 @@
 import type { Order } from "../types";
 
 /* ------------------------------------------------------------
-   SIMULAZIONE RAWBT → abilita il pulsante STAMPA
+   RAWBT FALSO → serve solo per abilitare il pulsante STAMPA
 ------------------------------------------------------------ */
 // @ts-ignore
-if (typeof window.RawBT === "undefined") {
-  window.RawBT = {
-    print: (data: string) => rawbtPrint(data),
-    ready: true
-  };
-}
+window.RawBT = {
+  print: (data: string) => wifiPrint(data),
+  ready: true
+};
 
 /* ------------------------------------------------------------
    ESC/POS CONSTANTS
@@ -42,21 +40,28 @@ export async function sendOrderToPrinter(order: Order) {
 }
 
 /* ------------------------------------------------------------
-   STAMPA VIA WEBSOCKET (SERVER RAWBT)
+   STAMPA DIRETTA VIA TCP/IP (MUNBYN)
 ------------------------------------------------------------ */
-async function rawbtPrint(data: string) {
+async function wifiPrint(data: string) {
+  const ip = "192.168.1.130"; // <-- IL TUO IP
+  const port = 9100;
+
   return new Promise((resolve, reject) => {
     try {
-      const socket = new WebSocket("ws://127.0.0.1:40213");
+      // @ts-ignore (plugin Android WebView TCP)
+      const socket = new window.Socket();
 
-      socket.onopen = () => {
-        // Invia i dati ESC/POS al server RawBT
-        socket.send(JSON.stringify({ type: "print", data }));
-        socket.close();
-        resolve(true);
-      };
+      socket.connect(
+        port,
+        ip,
+        () => {
+          socket.write(data);
+          socket.close();
+          resolve(true);
+        }
+      );
 
-      socket.onerror = (err) => reject(err);
+      socket.onError((err: any) => reject(err));
     } catch (e) {
       reject(e);
     }
