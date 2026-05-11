@@ -1,3 +1,12 @@
+// Forza RawBT a esistere su Android
+// @ts-ignore
+if (typeof window.RawBT === "undefined") {
+  window.RawBT = {
+    print: (data: string) => rawbtPrint(data),
+    ready: true
+  };
+}
+
 import type { Order } from "../types";
 
 /* ------------------------------------------------------------
