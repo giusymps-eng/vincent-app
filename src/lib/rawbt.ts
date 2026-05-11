@@ -26,7 +26,8 @@ export async function sendOrderToPrinter(order: Order) {
 
   // --- TESTO FINALE ---
   const finalText =
-    salaText + "\n\n\n" +
+    salaText + "\n\n\n\n\n" +
+    "\x1B!\x00" +
     cucinaText + "\n\n\n\n{cut:full}";
 
   // ------------------------------------------------------------
