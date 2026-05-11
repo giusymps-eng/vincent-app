@@ -1,49 +1,29 @@
 import type { Order } from "../types";
 
 const ESC = "\x1B";
-const INIT_PRINTER = ESC + "@";
-const FONT_NORMAL = ESC + "!\x00";
+const INIT = ESC + "@";
 const FONT_LARGE = ESC + "!\x38";
+const FONT_NORMAL = ESC + "!\x00";
 
 /* ------------------------------------------------------------
-   STAMPA ORDINE: copia sala + copia cucina
+   STAMPA COMANDA UNICA (solo cucina)
 ------------------------------------------------------------ */
 export async function sendOrderToPrinter(order: Order) {
-  const salaText = generateReceiptText(order, false);
-
-  const cucinaOrder = structuredClone(order);
-  (cucinaOrder as any).isKitchenCopy = true;
-  zeroPrices(cucinaOrder);
-  cucinaOrder.coperto = 0;
-  cucinaOrder.deliveryFee = 0;
-  cucinaOrder.total = 0;
-
-  const cucinaText = generateReceiptText(cucinaOrder, true);
+  const text = generateKitchenOnly(order);
 
   const job =
-    INIT_PRINTER +
-    salaText +
-    "\n\n\n" +
-    INIT_PRINTER +
-    cucinaText +
+    INIT +
+    FONT_LARGE +
+    text +
+    FONT_NORMAL +
     "\n{cut:full}";
 
   await rawbtPrint(job);
   return true;
 }
 
-function zeroPrices(order: Order) {
-  const zero = (items?: Array<{ price: number }>) =>
-    items?.forEach(item => item.price = 0);
-
-  zero(order.pizzas);
-  zero(order.panini);
-  zero(order.contorni);
-  zero(order.bevande);
-}
-
 /* ------------------------------------------------------------
-   INVIO RAWBT
+   RAWBT
 ------------------------------------------------------------ */
 async function rawbtPrint(text: string) {
   const safeEncode = (str: string) =>
@@ -69,29 +49,23 @@ async function rawbtPrint(text: string) {
 }
 
 /* ------------------------------------------------------------
-   GENERA TESTO COMANDA (SALA / CUCINA)
+   GENERA COMANDA UNICA
 ------------------------------------------------------------ */
-function generateReceiptText(order: Order, isKitchen: boolean) {
+function generateKitchenOnly(order: Order) {
   let text = "";
 
-  text += "================================================\n";
+  text += "========================================\n";
   text += center("VINCENT'S PUB");
-  text += "================================================\n\n";
+  text += "========================================\n\n";
 
-  if (isKitchen) {
-    text += FONT_LARGE;
-    text += center(`COMANDA #${order.progressiveNumber}`);
-    text += center("CUCINA");
-    text += FONT_NORMAL;
-  } else {
-    text += center(`COMANDA #${order.progressiveNumber}`);
+  text += center(`COMANDA #${order.progressiveNumber}`);
+  text += center(order.type?.toUpperCase() || "ORDINE");
+
+  if (order.scheduledTime) {
+    text += center(`ORARIO: ${order.scheduledTime}`);
   }
 
-  text += "------------------------------------------------\n";
-
-  const tipo = order.type?.toUpperCase() || "ORDINE";
-  const orario = order.scheduledTime ? `Orario: ${order.scheduledTime}` : "";
-  text += `${tipo.padEnd(12)} ${orario}`.trim() + "\n";
+  text += "\n----------------------------------------\n";
 
   const legacy = order as any;
   const customerName = order.customerName || legacy.name;
@@ -101,23 +75,21 @@ function generateReceiptText(order: Order, isKitchen: boolean) {
   if (customerName) text += `Nome: ${customerName}\n`;
   if (customerPhone) text += `Tel: ${customerPhone}\n`;
   if (customerAddress) text += `Indirizzo: ${customerAddress}\n`;
-  if (order.status) text += `Stato: ${order.status}\n`;
 
-  text += "------------------------------------------------\n";
+  text += "----------------------------------------\n";
 
-  text += buildSections(order, isKitchen);
+  text += buildSections(order);
 
-  if (!isKitchen) {
-    text += "\n================================================\n";
-    text += center("ATTENZIONE RICALCOLA");
-    if (order.coperto !== undefined) {
-      text += `Coperto €${order.coperto.toFixed(2)}\n`;
-    }
-    if (order.deliveryFee !== undefined) {
-      text += `Consegna €${order.deliveryFee.toFixed(2)}\n`;
-    }
-    text += "================================================\n";
-    text += center(`TOTALE €${order.total.toFixed(2)}`);
+  if (order.pizzas?.length > 0) {
+    text += "\n";
+    text += order.cutPizzas || (order as any).pizzeTagliate
+      ? "✓ PIZZE TAGLIATE\n"
+      : "□ Pizze NON tagliate\n";
+  }
+
+  if (order.notes) {
+    text += "\nNOTE AGGIUNTIVE:\n";
+    text += `${order.notes}\n`;
   }
 
   text += "\n";
@@ -125,21 +97,20 @@ function generateReceiptText(order: Order, isKitchen: boolean) {
 }
 
 /* ------------------------------------------------------------
-   SEZIONI COMANDA
+   SEZIONI
 ------------------------------------------------------------ */
-function buildSections(order: Order, isKitchen: boolean) {
+function buildSections(order: Order) {
   let text = "";
 
-  const addSection = (title: string, items: Array<{ name: string; quantity: number; price: number; note?: string; }>) => {
+  const addSection = (title: string, items: Array<{ name: string; quantity: number; note?: string }>) => {
     if (!items || items.length === 0) return;
 
     text += `\n${title}\n`;
 
     items.forEach(item => {
       const qty = `${item.quantity}×`.padEnd(4);
-      const name = item.name.padEnd(28);
-      const priceText = isKitchen ? "" : item.price ? `€${(item.price * item.quantity).toFixed(2)}` : "";
-      text += `${qty}${name}${priceText.padStart(10)}\n`;
+      const name = item.name;
+      text += `${qty}${name}\n`;
       if (item.note) text += `  Note: ${item.note}\n`;
     });
   };
@@ -149,23 +120,13 @@ function buildSections(order: Order, isKitchen: boolean) {
   addSection("STUZZICHERIE", order.contorni);
   addSection("BEVANDE", order.bevande);
 
-  if (order.pizzas.length > 0) {
-    text += "\n";
-    text += order.cutPizzas || (order as any).pizzeTagliate ? "✓ PIZZE TAGLIATE\n" : "□ Pizze NON tagliate\n";
-  }
-
-  if (order.notes) {
-    text += "\nNOTE AGGIUNTIVE:\n";
-    text += `${order.notes}\n`;
-  }
-
   return text;
 }
 
 /* ------------------------------------------------------------
-   FUNZIONE DI CENTRATURA
+   CENTRARE TESTO
 ------------------------------------------------------------ */
-function center(value: string, width = 48) {
+function center(value: string, width = 40) {
   const text = value || "";
   if (text.length >= width) return text + "\n";
 
