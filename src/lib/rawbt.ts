@@ -1,6 +1,14 @@
 import type { Order } from "../types";
 
 /* ------------------------------------------------------------
+   SIMULAZIONE RAWBT → serve solo per abilitare il pulsante
+------------------------------------------------------------ */
+// @ts-ignore
+window.RawBT = {
+  print: () => true
+};
+
+/* ------------------------------------------------------------
    ESC/POS CONSTANTS
 ------------------------------------------------------------ */
 const ESC = "\x1B";
@@ -34,7 +42,7 @@ export async function sendOrderToPrinter(order: Order) {
    RAWBT COMPATIBILITY WRAPPER → stampa via WiFi
 ------------------------------------------------------------ */
 async function rawbtPrint(data: string) {
-  const ip = "192.168.1.123"; // <-- METTI QUI L'IP DELLA TUA STAMPANTE
+  const ip = "192.168.1.130"; // <-- CAMBIA QUESTO CON L'IP DELLA TUA STAMPANTE
   const port = 9100;
 
   return new Promise((resolve, reject) => {
