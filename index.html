@@ -6,46 +6,94 @@
     <title>Menu Vincent Pub Pizzeria</title>
 
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f7f7f7;
-            margin: 0;
-            padding: 20px;
-        }
+    body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: #1e1e1e;
+        color: #f2f2f2;
+        margin: 0;
+        padding: 15px;
+    }
 
-        h1 {
-            text-align: center;
-            margin-bottom: 25px;
+    h1 {
+        text-align: center;
+        margin-bottom: 25px;
+        font-size: 28px;
+        color: #ffcc00;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .category {
+        background: #2a2a2a;
+        padding: 20px;
+        margin-bottom: 25px;
+        border-radius: 12px;
+        border-left: 6px solid #ffcc00;
+        box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    }
+
+    .category h2 {
+        margin-top: 0;
+        font-size: 22px;
+        color: #ffcc00;
+        border-bottom: 1px solid #444;
+        padding-bottom: 8px;
+        margin-bottom: 15px;
+    }
+
+    .item {
+        padding: 12px 0;
+        border-bottom: 1px solid #444;
+    }
+
+    .item:last-child {
+        border-bottom: none;
+    }
+
+    .item-name {
+        font-weight: bold;
+        font-size: 18px;
+        color: #ffffff;
+        display: block;
+    }
+
+    .item-price {
+        float: right;
+        font-weight: bold;
+        color: #ffcc00;
+        font-size: 18px;
+    }
+
+    .item-desc {
+        font-size: 14px;
+        color: #cccccc;
+        margin-top: 4px;
+    }
+
+    /* MOBILE RESPONSIVE */
+    @media (max-width: 600px) {
+        body {
+            padding: 10px;
         }
 
         .category {
-            background: white;
-            padding: 20px;
-            margin-bottom: 25px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 15px;
         }
 
-        .item {
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
+        .item-name, .item-price {
+            font-size: 16px;
         }
 
-        .item-name {
-            font-weight: bold;
+        h1 {
+            font-size: 22px;
+        }
+
+        .category h2 {
             font-size: 18px;
         }
+    }
+</style>
 
-        .item-price {
-            float: right;
-            font-weight: bold;
-        }
-
-        .item-desc {
-            font-size: 14px;
-            color: #555;
-        }
-    </style>
 </head>
 
 <body>
