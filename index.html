@@ -26,17 +26,9 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
 
-        .category h2 {
-            margin-top: 0;
-        }
-
         .item {
             padding: 10px 0;
             border-bottom: 1px solid #eee;
-        }
-
-        .item:last-child {
-            border-bottom: none;
         }
 
         .item-name {
@@ -44,56 +36,341 @@
             font-size: 18px;
         }
 
-        .item-desc {
-            font-size: 14px;
-            color: #555;
-        }
-
         .item-price {
             float: right;
             font-weight: bold;
+        }
+
+        .item-desc {
+            font-size: 14px;
+            color: #555;
         }
     </style>
 </head>
 
 <body>
 
-    <h1>Menu Vincent Pub Pizzeria</h1>
+<h1>Menu Vincent Pub Pizzeria</h1>
 
-    <div id="menu"></div>
+<!-- ============================
+     LE TRADIZIONALI
+============================= -->
+<div class="category">
+    <h2>Le Tradizionali</h2>
 
-    <script type="module">
-        import { ALL_MENU, CATEGORY_LABELS } from "./menu.js";
+    <div class="item"><span class="item-name">Pizza Pane</span><span class="item-price">€4.00</span><div class="item-desc">Impasto pizza cotto al forno</div></div>
+    <div class="item"><span class="item-name">Bianca</span><span class="item-price">€5.00</span><div class="item-desc">Mozzarella, origano e olio</div></div>
+    <div class="item"><span class="item-name">Marinara</span><span class="item-price">€4.50</span><div class="item-desc">Pomodoro, aglio, origano e olio</div></div>
+    <div class="item"><span class="item-name">Nutella</span><span class="item-price">€7.00</span><div class="item-desc">Nutella, pistacchio e zucchero a velo</div></div>
+    <div class="item"><span class="item-name">Margherita</span><span class="item-price">€5.50</span><div class="item-desc">Pomodoro, mozzarella, origano e olio</div></div>
+    <div class="item"><span class="item-name">Diavola</span><span class="item-price">€7.00</span><div class="item-desc">Pomodoro, mozzarella, salame piccante, olio piccante, origano</div></div>
+    <div class="item"><span class="item-name">Napoli</span><span class="item-price">€7.00</span><div class="item-desc">Pomodoro, mozzarella, acciughe, origano e olio</div></div>
+    <div class="item"><span class="item-name">Funghi</span><span class="item-price">€6.00</span><div class="item-desc">Pomodoro, mozzarella, funghi freschi, origano e olio</div></div>
+    <div class="item"><span class="item-name">Boscaiola</span><span class="item-price">€8.00</span><div class="item-desc">Pomodoro, mozzarella, funghi, salsiccia, origano e olio</div></div>
+    <div class="item"><span class="item-name">Pub</span><span class="item-price">€7.00</span><div class="item-desc">Pomodoro, mozzarella, wurstel, patatine*, origano e olio</div></div>
+    <div class="item"><span class="item-name">Genovese</span><span class="item-price">€7.00</span><div class="item-desc">Pomodoro, mozzarella, pesto e olio</div></div>
+    <div class="item"><span class="item-name">Capricciosa</span><span class="item-price">€7.50</span><div class="item-desc">Pomodoro, mozzarella, prosciutto cotto, funghi, uovo, origano e olio</div></div>
+    <div class="item"><span class="item-name">Tonno e Cipolla</span><span class="item-price">€8.00</span><div class="item-desc">Pomodoro, mozzarella, tonno, cipolla, origano e olio</div></div>
+    <div class="item"><span class="item-name">Quattro Formaggi</span><span class="item-price">€8.00</span><div class="item-desc">Mozzarella, emmental, gorgonzola, grana, origano e olio</div></div>
+    <div class="item"><span class="item-name">Ortolana</span><span class="item-price">€8.00</span><div class="item-desc">Pomodoro, mozzarella, melanzane, zucchine, peperoni, origano e olio</div></div>
+    <div class="item"><span class="item-name">Spinacina</span><span class="item-price">€8.50</span><div class="item-desc">Pomodoro, mozzarella, spinaci*, uovo, grana, origano e olio</div></div>
+    <div class="item"><span class="item-name">Peperoni</span><span class="item-price">€8.00</span><div class="item-desc">Mozzarella, salsiccia, cipolla, peperoni, origano e olio</div></div>
+    <div class="item"><span class="item-name">Norma</span><span class="item-price">€8.00</span><div class="item-desc">Pomodoro, mozzarella, melanzane, grana o ricotta salata, origano e olio</div></div>
+    <div class="item"><span class="item-name">Parmigiana</span><span class="item-price">€9.00</span><div class="item-desc">Pomodoro, mozzarella, melanzane, prosciutto cotto, uovo, grana, origano e olio</div></div>
+    <div class="item"><span class="item-name">Porcina</span><span class="item-price">€8.00</span><div class="item-desc">Pomodoro, mozzarella, funghi porcini, origano e olio</div></div>
+    <div class="item"><span class="item-name">Crudo</span><span class="item-price">€8.00</span><div class="item-desc">Pomodoro, mozzarella, prosciutto crudo, origano e olio</div></div>
+    <div class="item"><span class="item-name">Prosciutto e Funghi</span><span class="item-price">€7.00</span><div class="item-desc">Pomodoro, mozzarella, prosciutto cotto, funghi, origano e olio</div></div>
+    <div class="item"><span class="item-name">Ungherese</span><span class="item-price">€8.00</span><div class="item-desc">Pomodoro, mozzarella, salame ungherese, origano e olio</div></div>
+    <div class="item"><span class="item-name">Margherita Senza Glutine</span><span class="item-price">€8.00</span><div class="item-desc">Prodotto precotto surgelato, non manipolato in cucina</div></div>
+</div>
 
-        const menuContainer = document.getElementById("menu");
+<!-- ============================
+     LE SPECIALI
+============================= -->
+<div class="category">
+    <h2>Le Speciali</h2>
 
-        for (const categoryKey in ALL_MENU) {
-            const categoryItems = ALL_MENU[categoryKey];
-            const categoryName = CATEGORY_LABELS[categoryKey] || categoryKey;
+    <div class="item"><span class="item-name">Gorgo, Noci e Speck</span><span class="item-price">€9.00</span><div class="item-desc">Mozzarella, gorgonzola, noci, speck, origano e olio</div></div>
+    <div class="item"><span class="item-name">Ruca</span><span class="item-price">€8.00</span><div class="item-desc">Pomodoro, mozzarella, bresaola, rucola, scaglie di grana, origano e olio</div></div>
+    <div class="item"><span class="item-name">Caprese</span><span class="item-price">€9.00</span><div class="item-desc">Mozzarella, pachino, bufala, origano e olio</div></div>
+    <div class="item"><span class="item-name">Calabrese</span><span class="item-price">€8.50</span><div class="item-desc">Pomodoro, mozzarella, nduja, origano e olio</div></div>
+    <div class="item"><span class="item-name">Bacon</span><span class="item-price">€9.00</span><div class="item-desc">Mozzarella, funghi, bacon, scaglie di grana</div></div>
+    <div class="item"><span class="item-name">Capricciosa Plus</span><span class="item-price">€9.00</span><div class="item-desc">Pomodoro, mozzarella, prosciutto cotto, carciofi, uovo, funghi, olive, origano e olio</div></div>
+    <div class="item"><span class="item-name">Porchetta</span><span class="item-price">€8.00</span><div class="item-desc">Mozzarella, porchetta, rucola, grana, origano e olio</div></div>
+    <div class="item"><span class="item-name">Rosalba</span><span class="item-price">€7.00</span><div class="item-desc">Mozzarella, cipolla agro dolce, grana, origano e olio</div></div>
+    <div class="item"><span class="item-name">Venere</span><span class="item-price">€12.00</span><div class="item-desc">Pomodoro, mozzarella di bufala, salsiccia, funghi porcini, cipolla, olive, origano e olio</div></div>
+    <div class="item"><span class="item-name">Ai Friarielli</span><span class="item-price">€11.00</span><div class="item-desc">Pomodoro, mozzarella, friarielli, salsiccia, gorgonzola, grana, origano e olio</div></div>
+    <div class="item"><span class="item-name">Frutti di Mare</span><span class="item-price">€12.00</span><div class="item-desc">Pomodoro, mozzarella, frutti di mare*, aromi vari</div></div>
+    <div class="item"><span class="item-name">Sfiziosa</span><span class="item-price">€10.00</span><div class="item-desc">Mozzarella, olive, pomodori secchi, salame piccante, grana, origano e olio</div></div>
+    <div class="item"><span class="item-name">Friarielli e Salmone</span><span class="item-price">€12.00</span><div class="item-desc">Bufala, friarielli, salmone</div></div>
+    <div class="item"><span class="item-name">Carbonara</span><span class="item-price">€12.00</span><div class="item-desc">Mozzarella, pecorino romano, guanciale, uovo, pepe nero, cipolla caramellata agrodolce, origano e olio</div></div>
+    <div class="item"><span class="item-name">Fantasia di Formaggi</span><span class="item-price">€13.00</span><div class="item-desc">Mozzarella, gorgonzola, provola affumicata, grana padano, panure aromatizzata, guanciale, glassa di aceto balsamico</div></div>
+    <div class="item"><span class="item-name">Mortazza</span><span class="item-price">€10.00</span><div class="item-desc">Mozzarella, stracchino, mortadella, granella di pistacchio</div></div>
+    <div class="item"><span class="item-name">Crudo e Stracchino</span><span class="item-price">€9.00</span><div class="item-desc">Mozzarella, crudo, stracchino e noci</div></div>
+    <div class="item"><span class="item-name">Panna e Pistacchio</span><span class="item-price">€10.00</span><div class="item-desc">Mozzarella, panna, pistacchio e speck</div></div>
+    <div class="item"><span class="item-name">Montesana</span><span class="item-price">€11.00</span><div class="item-desc">Pomodoro, gorgonzola, funghi porcini, speck, origano e olio</div></div>
+    <div class="item"><span class="item-name">Cipolla e Capperi</span><span class="item-price">€9.00</span><div class="item-desc">Pomodoro, pomodorini, cipolla agrodolce, capperi, olive nere, glassa di aceto balsamico</div></div>
+</div>
 
-            const categoryDiv = document.createElement("div");
-            categoryDiv.className = "category";
+<!-- ============================
+     DI CASA
+============================= -->
+<div class="category">
+    <h2>Di Casa</h2>
 
-            const title = document.createElement("h2");
-            title.textContent = categoryName;
-            categoryDiv.appendChild(title);
+    <div class="item"><span class="item-name">Giorgia</span><span class="item-price">€10.00</span><div class="item-desc">Mozzarella, carciofi*, prosciutto crudo, grana, origano e olio</div></div>
+    <div class="item"><span class="item-name">Gaia</span><span class="item-price">€10.00</span><div class="item-desc">Ragù, panna, mozzarella, uovo, grana, origano e olio</div></div>
+    <div class="item"><span class="item-name">Margherita DOC</span><span class="item-price">€8.00</span><div class="item-desc">Pomodoro, mozzarella di bufala, origano e olio</div></div>
+    <div class="item"><span class="item-name">Sofia</span><span class="item-price">€11.00</span><div class="item-desc">Pomodoro, mozzarella, gamberetti, zucchine, origano e olio</div></div>
+    <div class="item"><span class="item-name">Vito</span><span class="item-price">€9.00</span><div class="item-desc">Pomodoro, mozzarella, zucchine, salsiccia, panna</div></div>
+    <div class="item"><span class="item-name">Vincent</span><span class="item-price">€10.00</span><div class="item-desc">Pomodoro, mozzarella, radicchio, gorgonzola e provola</div></div>
+    <div class="item"><span class="item-name">Alice</span><span class="item-price">€12.00</span><div class="item-desc">Mozzarella, panna, pistacchio, crema di porcini, salsiccia</div></div>
+    <div class="item"><span class="item-name">Mattia</span><span class="item-price">€11.00</span><div class="item-desc">Pomodoro, mozzarella, finocchietto selvatico, pinoli, acciughe, uvetta, panure aromatizzata</div></div>
+</div>
 
-            categoryItems.forEach(item => {
-                const itemDiv = document.createElement("div");
-                itemDiv.className = "item";
+<!-- ============================
+     FOCACCIA & CALZONE
+============================= -->
+<div class="category">
+    <h2>Focaccia e Calzone</h2>
 
-                itemDiv.innerHTML = `
-                    <span class="item-name">${item.name}</span>
-                    <span class="item-price">€${item.price.toFixed(2)}</span>
-                    <div class="item-desc">${item.description || ""}</div>
-                `;
+    <div class="item"><span class="item-name">Focaccia</span><span class="item-price">€9.00</span><div class="item-desc">Mozzarella, funghi porcini, pomodoro di bruschetta, grana</div></div>
+    <div class="item"><span class="item-name">Focaccia Come Vuoi Tu</span><span class="item-price">€9.00</span><div class="item-desc">Componi la tua focaccia</div></div>
+    <div class="item"><span class="item-name">Calzone</span><span class="item-price">€8.00</span><div class="item-desc">Pomodoro, mozzarella, prosciutto cotto, uovo, funghi, origano e olio</div></div>
+</div>
 
-                categoryDiv.appendChild(itemDiv);
-            });
+<!-- ============================
+     PANINI
+============================= -->
+<h2>Panini</h2>
+<div class="item">
+    <span class="item-name">Panino personalizzato</span>
+    <span class="item-price">€1.00</span>
+    <div class="item-desc">Scrivi tu come lo vuoi</div>
+</div>
 
-            menuContainer.appendChild(categoryDiv);
-        }
-    </script>
+<div class="item">
+    <span class="item-name">Hot Dog</span>
+    <span class="item-price">€3.50</span>
+    <div class="item-desc">Wurstel, patate*, maionese, ketchup</div>
+</div>
 
-</body>
-</html>
+<div class="item">
+    <span class="item-name">Sofisticato</span>
+    <span class="item-price">€3.50</span>
+    <div class="item-desc">Wurstel, mozzarella, salsa rosa</div>
+</div>
+
+<div class="item">
+    <span class="item-name">Gustoso</span>
+    <span class="item-price">€5.00</span>
+    <div class="item-desc">Prosciutto cotto, senape, maionese, groviera, pomodoro, cipolla</div>
+</div>
+
+<div class="item">
+    <span class="item-name">Fulmine</span>
+    <span class="item-price">€5.00</span>
+    <div class="item-desc">Prosciutto cotto, patè di olive, insalata russa, lattuga</div>
+</div>
+
+<div class="item">
+    <span class="item-name">Sfizioso</span>
+    <span class="item-price">€5.00</span>
+    <div class="item-desc">Salame piccante, tabasco, pomodori secchi, cipolla</div>
+</div>
+
+<div class="item">
+    <span class="item-name">Picasso</span>
+    <span class="item-price">€5.00</span>
+    <div class="item-desc">Salame, gorgonzola, mozzarella, cipolla, tabasco</div>
+</div>
+
+<div class="item">
+    <span class="item-name">Montanaro</span>
+    <span class="item-price">€6.00</span>
+    <div class="item-desc">Salsiccia, maionese, tonno, cipolla</div>
+</div>
+
+<div class="item">
+    <span class="item-name">Lucignolo</span>
+    <span class="item-price">€6.00</span>
+    <div class="item-desc">Salsiccia, philadelphia, funghi, tabasco</div>
+</div>
+
+<div class="item">
+    <span class="item-name">Vegetariano</span>
+    <span class="item-price">€4.00</span>
+    <div class="item-desc">Pomodoro, mozzarella, lattuga, origano</div>
+</div>
+
+<div class="item">
+    <span class="item-name">Cremoso</span>
+    <span class="item-price">€4.50</span>
+    <div class="item-desc">Prosciutto cotto, crema di funghi, philadelphia</div>
+</div>
+
+<div class="item">
+    <span class="item-name">Palmito</span>
+    <span class="item-price">€4.50</span>
+    <div class="item-desc">Prosciutto cotto, insalata russa, lattuga</div>
+</div>
+
+<div class="item">
+    <span class="item-name">Falcito</span>
+    <span class="item-price">€6.00</span>
+    <div class="item-desc">Prosciutto cotto, melanzane, maionese, pomodoro, lattuga, cipolla</div>
+</div>
+
+<div class="item">
+    <span class="item-name">Porchettone</span>
+    <span class="item-price">€5.00</span>
+    <div class="item-desc">Mozzarella, porchetta, parmigiano</div>
+</div>
+
+<div class="item">
+    <span class="item-name">Special Blue</span>
+    <span class="item-price">€5.50</span>
+    <div class="item-desc">Cordon Bleu, mozzarella, pomodoro, lattuga</div>
+</div>
+
+<div class="item">
+    <span class="item-name">Super Burger</span>
+    <span class="item-price">€6.00</span>
+    <div class="item-desc">Hamburger, bacon, pomodoro, lattuga</div>
+</div>
+<div class="category">
+    <h2>Paninazzi</h2>
+
+    <div class="item">
+        <span class="item-name">Manzo N.1</span>
+        <span class="item-price">€8.00</span>
+        <div class="item-desc">Carne di manzo siciliano (220g), pomodoro, insalata, olio EVO, provola delle Madonie, ketchup e maionese</div>
+    </div>
+
+    <div class="item">
+        <span class="item-name">Manzo N.2</span>
+        <span class="item-price">€9.00</span>
+        <div class="item-desc">Carne di manzo siciliano (220g), insalata, cipolla agrodolce, pomodoro, provola delle Madonie, guanciale croccante, salsa barbecue, ketchup e maionese</div>
+    </div>
+
+    <div class="item">
+        <span class="item-name">Manzo N.3</span>
+        <span class="item-price">€10.00</span>
+        <div class="item-desc">Carne di asino di Chiaramonte Gulfi (220g), pomodoro, insalata mista, mozzarella di bufala, funghi saltati, cipolla agrodolce, salsa barbecue, maionese, pepe</div>
+    </div>
+
+    <div class="item">
+        <span class="item-name">Manzo N.4</span>
+        <span class="item-price">€10.00</span>
+        <div class="item-desc">Carne di suino nero (220g), pomodorino confit, cavolo verza, mozzarella di bufala, cipolla cruda, ketchup e maionese</div>
+    </div>
+</div>
+<div class="category">
+    <h2>Stuzzicherie</h2>
+
+    <div class="item">
+        <span class="item-name">Antipasto Rustico Misto</span>
+        <span class="item-price">€10.00</span>
+    </div>
+
+    <div class="item">
+        <span class="item-name">Mozzarelline*</span>
+        <span class="item-price">€3.50</span>
+    </div>
+
+    <div class="item">
+        <span class="item-name">Crocchette di Patate*</span>
+        <span class="item-price">€3.50</span>
+    </div>
+
+    <div class="item">
+        <span class="item-name">Patatine Fritte*</span>
+        <span class="item-price">€2.50</span>
+    </div>
+</div>
+<div class="category">
+    <h2>Piatti Unici</h2>
+
+    <div class="item">
+        <span class="item-name">Hamburger 150g</span>
+        <span class="item-price">€9.00</span>
+        <div class="item-desc">Insalata russa, pomodori secchi, bufala</div>
+    </div>
+
+    <div class="item">
+        <span class="item-name">Cordon Blue</span>
+        <span class="item-price">€8.00</span>
+        <div class="item-desc">Crocchette, patatine*</div>
+    </div>
+</div>
+<div class="category">
+    <h2>Bruschette</h2>
+
+    <div class="item">
+        <span class="item-name">Bruschetta Classica</span>
+        <span class="item-price">€4.00</span>
+        <div class="item-desc">Pomodoro a pezzi, cipolla, origano e olio</div>
+    </div>
+
+    <div class="item">
+        <span class="item-name">Bruschetta alle Olive</span>
+        <span class="item-price">€4.50</span>
+        <div class="item-desc">Pomodoro a pezzi, olive, cipolla, origano e olio</div>
+    </div>
+
+    <div class="item">
+        <span class="item-name">Bruschetta Tirolese</span>
+        <span class="item-price">€5.00</span>
+        <div class="item-desc">Pomodoro a pezzi, speck, gorgonzola, cipolla, origano e olio</div>
+    </div>
+
+    <div class="item">
+        <span class="item-name">Bruschetta ai Funghi</span>
+        <span class="item-price">€5.00</span>
+        <div class="item-desc">Pomodoro a pezzi, mozzarella, funghetti, cipolla, origano e olio</div>
+    </div>
+</div>
+<div class="category">
+    <h2>Contorni</h2>
+
+    <div class="item">
+        <span class="item-name">Patatine Fritte</span>
+        <span class="item-price">€2.50</span>
+    </div>
+
+    <div class="item">
+        <span class="item-name">Mozzarelline</span>
+        <span class="item-price">€3.50</span>
+    </div>
+
+    <div class="item">
+        <span class="item-name">Crocchette di Patate</span>
+        <span class="item-price">€3.50</span>
+    </div>
+</div>
+<div class="category">
+    <h2>Bevande</h2>
+
+    <div class="item"><span class="item-name">Acqua N/F 50cl</span><span class="item-price">€1.00</span></div>
+    <div class="item"><span class="item-name">Acqua N/F 100cl</span><span class="item-price">€2.00</span></div>
+
+    <div class="item"><span class="item-name">Coca Cola 33cl</span><span class="item-price">€2.00</span></div>
+    <div class="item"><span class="item-name">Coca Cola Zero 33cl</span><span class="item-price">€2.00</span></div>
+    <div class="item"><span class="item-name">Sprite 33cl</span><span class="item-price">€2.00</span></div>
+    <div class="item"><span class="item-name">Fanta 33cl</span><span class="item-price">€2.00</span></div>
+
+    <div class="item"><span class="item-name">Thè al Limone 33cl</span><span class="item-price">€2.50</span></div>
+    <div class="item"><span class="item-name">Thè alla Pesca 33cl</span><span class="item-price">€2.50</span></div>
+</div>
+<div class="category">
+    <h2>Birre</h2>
+
+    <div class="item"><span class="item-name">Moretti 33cl</span><span class="item-price">€1.50</span></div>
+    <div class="item"><span class="item-name">Tuborg 33cl</span><span class="item-price">€2.00</span></div>
+    <div class="item"><span class="item-name">Heineken 33cl</span><span class="item-price">€2.50</span></div>
+    <div class="item"><span class="item-name">Ceres 33cl</span><span class="item-price">€3.50</span></div>
+    <div class="item"><span class="item-name">Beck's 33cl</span><span class="item-price">€2.00</span></div>
+    <div class="item"><span class="item-name">Corona 33cl</span><span class="item-price">€3.00</span></div>
+    <div class="item"><span class="item-name">Paulaner 50cl</span><span class="item-price">€4.00</span></div>
+    <div class="item"><span class="item-name">Peroni Senza Glutine 33cl</span><span class="item-price">€3.00</span></div>
+</div>
