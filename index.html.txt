@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Vincent</title>
+
+    <!-- Stile simile a Tailwind: minimal, pulito, centrato -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header class="topbar">
+        <h1>Vincent</h1>
+    </header>
+
+    <main class="container">
+        <h2 class="title">Menu</h2>
+        <div id="menu"></div>
+    </main>
+
+    <footer class="footer">
+        <p>© Vincent</p>
+    </footer>
+
+    <script src="menu.js"></script>
+</body>
+</html>
