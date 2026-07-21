@@ -3,26 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu Vincent</title>
+    <title>Menu Vincent Pub Pizzeria</title>
 
-    <!-- Stile simile a Tailwind: minimal, pulito, centrato -->
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7f7f7;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .category {
+            background: white;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .category h2 {
+            margin-top: 0;
+        }
+
+        .item {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .item:last-child {
+            border-bottom: none;
+        }
+
+        .item-name {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .item-desc {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .item-price {
+            float: right;
+            font-weight: bold;
+        }
+    </style>
 </head>
 
 <body>
-    <header class="topbar">
-        <h1>Vincent</h1>
-    </header>
 
-    <main class="container">
-        <h2 class="title">Menu</h2>
-        <div id="menu"></div>
-    </main>
+    <h1>Menu Vincent Pub Pizzeria</h1>
 
-    <footer class="footer">
-        <p>© Vincent</p>
-    </footer>
+    <div id="menu"></div>
 
-    <script src="menu.js"></script>
+    <script type="module">
+        import { ALL_MENU, CATEGORY_LABELS } from "./menu.js";
+
+        const menuContainer = document.getElementById("menu");
+
+        for (const categoryKey in ALL_MENU) {
+            const categoryItems = ALL_MENU[categoryKey];
+            const categoryName = CATEGORY_LABELS[categoryKey] || categoryKey;
+
+            const categoryDiv = document.createElement("div");
+            categoryDiv.className = "category";
+
+            const title = document.createElement("h2");
+            title.textContent = categoryName;
+            categoryDiv.appendChild(title);
+
+            categoryItems.forEach(item => {
+                const itemDiv = document.createElement("div");
+                itemDiv.className = "item";
+
+                itemDiv.innerHTML = `
+                    <span class="item-name">${item.name}</span>
+                    <span class="item-price">€${item.price.toFixed(2)}</span>
+                    <div class="item-desc">${item.description || ""}</div>
+                `;
+
+                categoryDiv.appendChild(itemDiv);
+            });
+
+            menuContainer.appendChild(categoryDiv);
+        }
+    </script>
+
 </body>
 </html>
