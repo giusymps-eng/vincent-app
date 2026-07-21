@@ -8,42 +8,50 @@
     <style>
     body {
         font-family: "Segoe UI", Arial, sans-serif;
-        background: #1e1e1e;
-        color: #f2f2f2;
+        background: #111;
+        color: #fff;
         margin: 0;
         padding: 15px;
+    }
+
+    /* LOGO */
+    .logo {
+        width: 100%;
+        max-width: 280px;
+        display: block;
+        margin: 0 auto 25px auto;
     }
 
     h1 {
         text-align: center;
         margin-bottom: 25px;
         font-size: 28px;
-        color: #ffcc00;
+        color: #ff6a00;
         text-transform: uppercase;
         letter-spacing: 2px;
     }
 
     .category {
-        background: #2a2a2a;
+        background: #1e1e1e;
         padding: 20px;
         margin-bottom: 25px;
         border-radius: 12px;
-        border-left: 6px solid #ffcc00;
-        box-shadow: 0 0 10px rgba(0,0,0,0.4);
+        border-left: 6px solid #ff6a00;
+        box-shadow: 0 0 10px rgba(0,0,0,0.5);
     }
 
     .category h2 {
         margin-top: 0;
         font-size: 22px;
-        color: #ffcc00;
-        border-bottom: 1px solid #444;
+        color: #ff6a00;
+        border-bottom: 1px solid #333;
         padding-bottom: 8px;
         margin-bottom: 15px;
     }
 
     .item {
         padding: 12px 0;
-        border-bottom: 1px solid #444;
+        border-bottom: 1px solid #333;
     }
 
     .item:last-child {
@@ -53,24 +61,24 @@
     .item-name {
         font-weight: bold;
         font-size: 18px;
-        color: #ffffff;
+        color: #fff;
         display: block;
     }
 
     .item-price {
         float: right;
         font-weight: bold;
-        color: #ffcc00;
+        color: #ff6a00;
         font-size: 18px;
     }
 
     .item-desc {
         font-size: 14px;
-        color: #cccccc;
+        color: #ccc;
         margin-top: 4px;
     }
 
-    /* MOBILE RESPONSIVE */
+    /* MOBILE */
     @media (max-width: 600px) {
         body {
             padding: 10px;
@@ -98,7 +106,10 @@
 
 <body>
 
-<h1>Menu Vincent Pub Pizzeria</h1>
+    <img src="logo.png" class="logo" alt="Vincent Pub Pizzeria">
+
+    <h1>Menu Vincent Pub Pizzeria</h1>
+
 
 <!-- ============================
      LE TRADIZIONALI
@@ -190,102 +201,107 @@
 <!-- ============================
      PANINI
 ============================= -->
-<h2>Panini</h2>
-<div class="item">
-    <span class="item-name">Panino personalizzato</span>
-    <span class="item-price">€1.00</span>
-    <div class="item-desc">Scrivi tu come lo vuoi</div>
-</div>
+<div class="category">
+    <h2>Panini</h2>
 
-<div class="item">
-    <span class="item-name">Hot Dog</span>
-    <span class="item-price">€3.50</span>
-    <div class="item-desc">Wurstel, patate*, maionese, ketchup</div>
-</div>
+    <div class="item">
+        <span class="item-name">Panino personalizzato</span>
+        <span class="item-price">€1.00</span>
+        <div class="item-desc">Scrivi tu come lo vuoi</div>
+    </div>
 
-<div class="item">
-    <span class="item-name">Sofisticato</span>
-    <span class="item-price">€3.50</span>
-    <div class="item-desc">Wurstel, mozzarella, salsa rosa</div>
-</div>
+    <div class="item">
+        <span class="item-name">Hot Dog</span>
+        <span class="item-price">€3.50</span>
+        <div class="item-desc">Wurstel, patate*, maionese, ketchup</div>
+    </div>
 
-<div class="item">
-    <span class="item-name">Gustoso</span>
-    <span class="item-price">€5.00</span>
-    <div class="item-desc">Prosciutto cotto, senape, maionese, groviera, pomodoro, cipolla</div>
-</div>
+    <div class="item">
+        <span class="item-name">Sofisticato</span>
+        <span class="item-price">€3.50</span>
+        <div class="item-desc">Wurstel, mozzarella, salsa rosa</div>
+    </div>
 
-<div class="item">
-    <span class="item-name">Fulmine</span>
-    <span class="item-price">€5.00</span>
-    <div class="item-desc">Prosciutto cotto, patè di olive, insalata russa, lattuga</div>
-</div>
+    <div class="item">
+        <span class="item-name">Gustoso</span>
+        <span class="item-price">€5.00</span>
+        <div class="item-desc">Prosciutto cotto, senape, maionese, groviera, pomodoro, cipolla</div>
+    </div>
 
-<div class="item">
-    <span class="item-name">Sfizioso</span>
-    <span class="item-price">€5.00</span>
-    <div class="item-desc">Salame piccante, tabasco, pomodori secchi, cipolla</div>
-</div>
+    <div class="item">
+        <span class="item-name">Fulmine</span>
+        <span class="item-price">€5.00</span>
+        <div class="item-desc">Prosciutto cotto, patè di olive, insalata russa, lattuga</div>
+    </div>
 
-<div class="item">
-    <span class="item-name">Picasso</span>
-    <span class="item-price">€5.00</span>
-    <div class="item-desc">Salame, gorgonzola, mozzarella, cipolla, tabasco</div>
-</div>
+    <div class="item">
+        <span class="item-name">Sfizioso</span>
+        <span class="item-price">€5.00</span>
+        <div class="item-desc">Salame piccante, tabasco, pomodori secchi, cipolla</div>
+    </div>
 
-<div class="item">
-    <span class="item-name">Montanaro</span>
-    <span class="item-price">€6.00</span>
-    <div class="item-desc">Salsiccia, maionese, tonno, cipolla</div>
-</div>
+    <div class="item">
+        <span class="item-name">Picasso</span>
+        <span class="item-price">€5.00</span>
+        <div class="item-desc">Salame, gorgonzola, mozzarella, cipolla, tabasco</div>
+    </div>
 
-<div class="item">
-    <span class="item-name">Lucignolo</span>
-    <span class="item-price">€6.00</span>
-    <div class="item-desc">Salsiccia, philadelphia, funghi, tabasco</div>
-</div>
+    <div class="item">
+        <span class="item-name">Montanaro</span>
+        <span class="item-price">€6.00</span>
+        <div class="item-desc">Salsiccia, maionese, tonno, cipolla</div>
+    </div>
 
-<div class="item">
-    <span class="item-name">Vegetariano</span>
-    <span class="item-price">€4.00</span>
-    <div class="item-desc">Pomodoro, mozzarella, lattuga, origano</div>
-</div>
+    <div class="item">
+        <span class="item-name">Lucignolo</span>
+        <span class="item-price">€6.00</span>
+        <div class="item-desc">Salsiccia, philadelphia, funghi, tabasco</div>
+    </div>
 
-<div class="item">
-    <span class="item-name">Cremoso</span>
-    <span class="item-price">€4.50</span>
-    <div class="item-desc">Prosciutto cotto, crema di funghi, philadelphia</div>
-</div>
+    <div class="item">
+        <span class="item-name">Vegetariano</span>
+        <span class="item-price">€4.00</span>
+        <div class="item-desc">Pomodoro, mozzarella, lattuga, origano</div>
+    </div>
 
-<div class="item">
-    <span class="item-name">Palmito</span>
-    <span class="item-price">€4.50</span>
-    <div class="item-desc">Prosciutto cotto, insalata russa, lattuga</div>
-</div>
+    <div class="item">
+        <span class="item-name">Cremoso</span>
+        <span class="item-price">€4.50</span>
+        <div class="item-desc">Prosciutto cotto, crema di funghi, philadelphia</div>
+    </div>
 
-<div class="item">
-    <span class="item-name">Falcito</span>
-    <span class="item-price">€6.00</span>
-    <div class="item-desc">Prosciutto cotto, melanzane, maionese, pomodoro, lattuga, cipolla</div>
-</div>
+    <div class="item">
+        <span class="item-name">Palmito</span>
+        <span class="item-price">€4.50</span>
+        <div class="item-desc">Prosciutto cotto, insalata russa, lattuga</div>
+    </div>
 
-<div class="item">
-    <span class="item-name">Porchettone</span>
-    <span class="item-price">€5.00</span>
-    <div class="item-desc">Mozzarella, porchetta, parmigiano</div>
-</div>
+    <div class="item">
+        <span class="item-name">Falcito</span>
+        <span class="item-price">€6.00</span>
+        <div class="item-desc">Prosciutto cotto, melanzane, maionese, pomodoro, lattuga, cipolla</div>
+    </div>
 
-<div class="item">
-    <span class="item-name">Special Blue</span>
-    <span class="item-price">€5.50</span>
-    <div class="item-desc">Cordon Bleu, mozzarella, pomodoro, lattuga</div>
-</div>
+    <div class="item">
+        <span class="item-name">Porchettone</span>
+        <span class="item-price">€5.00</span>
+        <div class="item-desc">Mozzarella, porchetta, parmigiano</div>
+    </div>
 
-<div class="item">
-    <span class="item-name">Super Burger</span>
-    <span class="item-price">€6.00</span>
-    <div class="item-desc">Hamburger, bacon, pomodoro, lattuga</div>
-</div>
+    <div class="item">
+        <span class="item-name">Special Blue</span>
+        <span class="item-price">€5.50</span>
+        <div class="item-desc">Cordon Bleu, mozzarella, pomodoro, lattuga</div>
+    </div>
+
+    <div class="item">
+        <span class="item-name">Super Burger</span>
+        <span class="item-price">€6.00</span>
+        <div class="item-desc">Hamburger, bacon, pomodoro, lattuga</div>
+    </div>
+
+</div> <!-- CHIUSURA CORRETTA -->
+
 <div class="category">
     <h2>Paninazzi</h2>
 
